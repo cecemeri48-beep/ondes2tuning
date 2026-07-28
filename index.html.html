@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141312">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>The Onde-Onde's Chelebes — Nature Pitch Calibrator</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --text:#F2F0ED; --text2:rgba(242,240,237,.66); --text3:rgba(242,240,237,.40);
+    --panel:rgba(255,255,255,.045); --line:rgba(255,255,255,.13); --line2:rgba(255,255,255,.07);
+    --redlit:#E0454A; --green:#72BC8F; --blue:#5E9FE8; --redx:#E97366;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 80% at 50% 10%, #232120 0%, #171614 52%, #0D0C0B 100%);
+    color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    display:flex; justify-content:center; align-items:center;
+    padding:20px 14px calc(20px + env(safe-area-inset-bottom));
+  }
+  body::before{ /* butiran kulit */
+    content:""; position:fixed; inset:0; pointer-events:none; opacity:.5; z-index:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='.5'/></svg>");
+    mix-blend-mode:overlay;
+  }
+  .app{position:relative; z-index:1; width:100%; max-width:420px;
+    display:flex; flex-direction:column; align-items:center; gap:14px}
+
+  .emblem{width:100%; max-width:400px; filter:drop-shadow(0 14px 26px rgba(0,0,0,.65))}
+  .emblem svg{display:block; width:100%; height:auto}
+  #needleG{transition:transform .1s linear}
+  @media (prefers-reduced-motion:reduce){#needleG{transition:none}}
+
+  .modes{display:flex; gap:4px; padding:4px; border-radius:11px;
+    background:rgba(0,0,0,.34); border:1px solid var(--line2)}
+  .modes button{width:96px; height:36px; border:1px solid transparent; border-radius:8px;
+    background:transparent; color:var(--text2); font:600 12.5px/1 var(--sans);
+    letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s,border-color .15s}
+  .modes button:hover{color:var(--text); background:rgba(255,255,255,.07)}
+  .modes button[aria-selected="true"]{
+    background:linear-gradient(180deg,#EDEEEF,#A9AEB2 48%,#D6D9DB 52%,#8E9398);
+    color:#1A1918; border-color:rgba(255,255,255,.5); text-shadow:0 1px 0 rgba(255,255,255,.4)}
+
+  .panel{width:100%; background:var(--panel); border:1px solid var(--line);
+    border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:8px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 6px 18px rgba(0,0,0,.4)}
+
+  .tabs{display:flex; gap:4px}
+  .tabs button{flex:1; min-width:0; height:36px; border:1px solid transparent; border-radius:8px;
+    background:rgba(0,0,0,.28); color:var(--text2); font:600 13px/1 var(--sans);
+    cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    transition:background .15s,color .15s,border-color .15s}
+  .tabs button:hover{color:var(--text); background:rgba(255,255,255,.07)}
+  .tabs button[aria-selected="true"]{
+    background:linear-gradient(180deg,#EDEEEF,#A9AEB2 48%,#D6D9DB 52%,#8E9398);
+    color:#1A1918; border-color:rgba(255,255,255,.5); text-shadow:0 1px 0 rgba(255,255,255,.4)}
+
+  select{width:100%; height:38px; padding:0 34px 0 12px; border-radius:8px;
+    background:rgba(0,0,0,.28) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' stroke='rgba(242,240,237,.55)' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+    border:1px solid var(--line2); color:var(--text); font:500 13.5px/1 var(--sans);
+    -webkit-appearance:none; appearance:none; cursor:pointer}
+
+  .strings{display:flex; gap:5px; width:100%}
+  .chip{flex:1; min-width:0; height:50px; border-radius:8px; cursor:pointer;
+    background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));
+    border:1px solid var(--line2); color:var(--text2); font-family:var(--sans);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    padding:0 2px; transition:border-color .15s,background .15s,color .15s}
+  .chip:hover{background:rgba(255,255,255,.12); color:var(--text)}
+  .chip .n{font:600 13.5px/1 var(--sans)}
+  .chip .f{font-size:9.5px; color:var(--text3); font-variant-numeric:tabular-nums}
+  .chip.active{border-color:var(--redlit); background:rgba(224,69,74,.20); color:var(--text)}
+  .chip.tuned{border-color:var(--green); background:rgba(114,188,143,.20); color:var(--text)}
+
+  .row{display:flex; gap:8px; width:100%; align-items:center}
+  .start{flex:1; height:46px; border-radius:9px; cursor:pointer;
+    border:1px solid rgba(255,255,255,.28); font:600 15px/1 var(--sans); letter-spacing:.02em;
+    background:linear-gradient(180deg,#D8383D,#A31E24); color:#FFF3F2;
+    text-shadow:0 1px 1px rgba(0,0,0,.45);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 4px 12px rgba(0,0,0,.4);
+    transition:filter .15s}
+  .start:hover{filter:brightness(1.08)}
+  .start.on{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+    color:var(--text2); text-shadow:none}
+
+  .calib{display:flex; align-items:center; gap:1px; height:46px; flex:none;
+    background:rgba(0,0,0,.28); border:1px solid var(--line2); border-radius:9px; padding:3px}
+  .calib button{width:28px; height:100%; border:0; border-radius:6px; background:transparent;
+    color:var(--text2); font:400 16px/1 var(--sans); cursor:pointer}
+  .calib button:hover{background:rgba(255,255,255,.1); color:var(--text)}
+  .calib b{font:600 11px/1.25 var(--sans); color:var(--text2); text-align:center;
+    font-variant-numeric:tabular-nums; padding:0 2px; white-space:nowrap}
+  .calib b i{display:block; font-style:normal; font-size:9px; color:var(--text3);
+    letter-spacing:.06em; text-transform:uppercase}
+
+  .status{font-size:11.5px; color:var(--text3); text-align:center; min-height:16px; padding:0 6px}
+  .status.err{color:var(--redx)}
+
+  .modes button:focus-visible,
+  .tabs button:focus-visible,.calib button:focus-visible,select:focus-visible,
+  .chip:focus-visible,.start:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+
+  @media (max-width:400px){ .chip{height:46px} .chip .n{font-size:12.5px} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= EMBLEM ================= -->
+  <div class="emblem">
+  <svg viewBox="0 0 400 400" role="img" aria-label="The Onde-Onde's Chelebes Nature Pitch Calibrator">
+    <defs>
+      <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0"   stop-color="#FAFBFB"/><stop offset=".14" stop-color="#B4B9BD"/>
+        <stop offset=".30" stop-color="#EFF1F2"/><stop offset=".47" stop-color="#84898E"/>
+        <stop offset=".56" stop-color="#C9CDD0"/><stop offset=".74" stop-color="#E8EAEC"/>
+        <stop offset=".88" stop-color="#8F9498"/><stop offset="1"   stop-color="#DDE0E2"/>
+      </linearGradient>
+      <linearGradient id="chromeRim" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#7C8186"/>
+        <stop offset=".55" stop-color="#D3D7DA"/><stop offset="1" stop-color="#6E7377"/>
+      </linearGradient>
+      <linearGradient id="redRim" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#E9585C"/><stop offset=".42" stop-color="#B72127"/>
+        <stop offset=".58" stop-color="#D93A3F"/><stop offset="1" stop-color="#8B171C"/>
+      </linearGradient>
+      <linearGradient id="redTxt" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#F4787B"/><stop offset=".5" stop-color="#D0343A"/>
+        <stop offset="1" stop-color="#9C1D22"/>
+      </linearGradient>
+      <linearGradient id="brownTxt" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#C08561"/><stop offset=".5" stop-color="#8A563A"/>
+        <stop offset="1" stop-color="#5C3623"/>
+      </linearGradient>
+      <radialGradient id="sky" cx=".5" cy=".22" r=".95">
+        <stop offset="0" stop-color="#33506E"/><stop offset=".55" stop-color="#22374E"/>
+        <stop offset="1" stop-color="#152232"/>
+      </radialGradient>
+      <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3C5A44"/><stop offset="1" stop-color="#1C2E25"/>
+      </linearGradient>
+      <radialGradient id="scrim" cx=".5" cy=".5" r=".5">
+        <stop offset="0"   stop-color="#070C12" stop-opacity=".72"/>
+        <stop offset=".62" stop-color="#070C12" stop-opacity=".52"/>
+        <stop offset="1"   stop-color="#070C12" stop-opacity="0"/>
+      </radialGradient>
+
+      <clipPath id="dialClip"><circle cx="200" cy="200" r="122"/></clipPath>
+
+      <filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
+        <feGaussianBlur stdDeviation="3.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="softglow" x="-90%" y="-90%" width="280%" height="280%">
+        <feGaussianBlur stdDeviation="7"/>
+      </filter>
+
+      <path id="arcTop"   d="M 48,200 A 152,152 0 0 1 352,200"/>
+      <path id="arcBot"   d="M 24,200 A 176,176 0 0 0 376,200"/>
+      <path id="arcSmall" d="M 60,200 A 140,140 0 0 0 340,200"/>
+    </defs>
+
+    <!-- pelat -->
+    <circle cx="200" cy="200" r="197" fill="url(#redRim)"/>
+    <circle cx="200" cy="200" r="190" fill="url(#chrome)"/>
+    <circle cx="200" cy="200" r="190" fill="none" stroke="rgba(0,0,0,.30)" stroke-width="1.5"/>
+
+    <!-- etsa gunung &amp; sungai -->
+    <g stroke="rgba(40,45,52,.42)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 216 l16-20 10 12 12-16 14 24"/><path d="M330 216 l16-20 10 12 12-16 14 24"/>
+    </g>
+    <g stroke="rgba(74,112,150,.50)" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M14 178 q22 -12 44 0 t44 0"/><path d="M298 178 q22 -12 44 0 t44 0"/>
+    </g>
+
+    <!-- teks lingkar -->
+    <g font-family="Georgia, 'Times New Roman', serif" font-weight="700" text-anchor="middle">
+      <text font-size="33" letter-spacing="1.5" fill="rgba(20,18,17,.55)">
+        <textPath href="#arcTop" startOffset="50%" dy="2.5">THE ONDE-ONDE&#8217;S</textPath></text>
+      <text font-size="33" letter-spacing="1.5" fill="url(#redTxt)"
+            stroke="rgba(255,255,255,.35)" stroke-width=".6" paint-order="stroke">
+        <textPath href="#arcTop" startOffset="50%">THE ONDE-ONDE&#8217;S</textPath></text>
+
+      <text font-size="36" letter-spacing="2" fill="rgba(20,18,17,.55)">
+        <textPath href="#arcBot" startOffset="50%" dy="2.5">CHELEBES</textPath></text>
+      <text font-size="36" letter-spacing="2" fill="url(#brownTxt)"
+            stroke="rgba(255,255,255,.32)" stroke-width=".6" paint-order="stroke">
+        <textPath href="#arcBot" startOffset="50%">CHELEBES</textPath></text>
+
+      <text font-size="11" letter-spacing="1.6" font-weight="600" fill="rgba(35,32,30,.68)">
+        <textPath href="#arcSmall" startOffset="50%">NATURE PITCH CALIBRATOR</textPath></text>
+    </g>
+
+    <!-- ================= DIAL ================= -->
+    <g clip-path="url(#dialClip)">
+      <circle cx="200" cy="200" r="122" fill="url(#sky)"/>
+
+      <!-- pegunungan -->
+      <path d="M78 218 L112 162 L136 194 L166 136 L200 190 L232 144 L262 192 L292 160 L322 218 Z"
+            fill="#2B4059" opacity=".8"/>
+      <path d="M166 136 L153 161 L180 161 Z M232 144 L221 165 L246 165 Z M112 162 L103 177 L124 177 Z"
+            fill="#C9D8E4" opacity=".3"/>
+      <path d="M78 236 L118 196 L150 220 L188 184 L224 222 L258 192 L292 224 L322 202 L322 236 Z"
+            fill="#22364C" opacity=".85"/>
+      <path d="M78 232 Q200 206 322 232 L322 322 L78 322 Z" fill="url(#field)"/>
+      <path d="M78 256 Q200 234 322 256" fill="none" stroke="rgba(150,200,170,.14)" stroke-width="2"/>
+
+      <!-- peredam kontras di balik angka -->
+      <ellipse cx="200" cy="262" rx="112" ry="78" fill="url(#scrim)"/>
+
+      <g id="gaugeGroup">
+      <!-- ikon gitar &amp; biola (di atas busur, tidak terpotong) -->
+      <g id="icoGuitar" transform="translate(150,120) scale(.58)">
+        <g fill="none" stroke="#E3E9ED" stroke-width="3.4" stroke-linecap="round">
+          <path d="M0 -32 L0 -8"/><path d="M-5 -34 h10"/>
+        </g>
+        <path d="M0 -8 c-13 0 -18 9 -18 17 c0 7 4 11 4 16 c0 8 -6 12 -6 20 c0 11 9 19 20 19
+                 c11 0 20 -8 20 -19 c0 -8 -6 -12 -6 -20 c0 -5 4 -9 4 -16 c0 -8 -5 -17 -18 -17 Z"
+              fill="#CFD6DC" stroke="#7E868D" stroke-width="2"/>
+        <circle cx="0" cy="34" r="6.5" fill="#26333F"/>
+      </g>
+      <g id="icoViolin" transform="translate(250,120) scale(.58)">
+        <g fill="none" stroke="#E3E9ED" stroke-width="3.4" stroke-linecap="round">
+          <path d="M0 -34 L0 -10"/><path d="M0 -34 c-7 0 -9 6 -4 8"/>
+        </g>
+        <path d="M0 -10 c-11 0 -15 8 -15 14 c0 6 4 9 4 13 c0 7 -6 10 -6 18 c0 10 8 17 17 17
+                 c9 0 17 -7 17 -17 c0 -8 -6 -11 -6 -18 c0 -4 4 -7 4 -13 c0 -6 -4 -14 -15 -14 Z"
+              fill="#CFD6DC" stroke="#7E868D" stroke-width="2"/>
+        <g stroke="#38454F" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M-7 28 q-3 8 0 14"/><path d="M7 28 q3 8 0 14"/>
+        </g>
+      </g>
+
+      <!-- skala cent -->
+      <path id="gaugeZone" d="" fill="rgba(114,188,143,.35)"/>
+      <path id="gaugeArc"  d="" fill="none" stroke="rgba(226,232,238,.55)" stroke-width="2"/>
+      <g id="gaugeTicks"></g>
+      <g id="gaugeLabels" font-family="Georgia, serif" font-size="11" font-weight="700"
+         fill="rgba(228,236,242,.70)" text-anchor="middle"></g>
+
+      <!-- jarum -->
+      <g id="needleG" transform="rotate(0 200 340)">
+        <polygon id="needleGlow" points="200,164 205,206 195,206" fill="#8FD3F4"
+                 opacity=".85" filter="url(#softglow)"/>
+        <polygon id="needle" points="200,166 203.4,204 196.6,204" fill="#EAF7FF" filter="url(#glow)"/>
+      </g>
+      </g><!-- /gaugeGroup -->
+
+      <!-- ============ MODE STROBO ============ -->
+      <g id="strobeGroup" style="display:none">
+        <circle cx="200" cy="200" r="103" fill="none" stroke="rgba(6,12,20,.80)" stroke-width="48"/>
+        <g id="strobeRot1">
+          <circle id="strobeBand1" cx="200" cy="200" r="112" fill="none" stroke="#D7DEE4"
+                  stroke-width="16" stroke-dasharray="14.66 14.66"/>
+        </g>
+        <g id="strobeRot2">
+          <circle id="strobeBand2" cx="200" cy="200" r="90" fill="none" stroke="#8FA6B9"
+                  stroke-width="13" stroke-dasharray="17.67 17.67"/>
+        </g>
+        <circle cx="200" cy="200" r="120.5" fill="none" stroke="rgba(0,0,0,.5)" stroke-width="4"/>
+        <circle cx="200" cy="200" r="82"    fill="none" stroke="rgba(0,0,0,.5)" stroke-width="4"/>
+      </g>
+
+      <g id="readout">
+      <!-- pembacaan -->
+      <text id="dTarget" x="200" y="219" text-anchor="middle" font-family="Georgia, serif"
+            font-size="10.5" font-weight="700" letter-spacing="2.4" fill="rgba(228,236,242,.62)">—</text>
+      <text id="dNote" x="200" y="263" text-anchor="middle" font-family="Georgia, serif"
+            font-size="50" font-weight="700" fill="#EAF7FF" filter="url(#glow)">—</text>
+      <text id="dHz" x="200" y="283" text-anchor="middle" font-family="Georgia, serif"
+            font-size="10.5" fill="rgba(228,236,242,.56)">tekan MULAI</text>
+      <text id="dCents" x="200" y="300" text-anchor="middle" font-family="Georgia, serif"
+            font-size="11" font-weight="700" letter-spacing=".6" fill="rgba(228,236,242,.72)"></text>
+      </g><!-- /readout -->
+
+      <circle cx="200" cy="200" r="122" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="6"/>
+    </g>
+    <circle cx="200" cy="200" r="126" fill="none" stroke="url(#chromeRim)" stroke-width="9"/>
+    <circle cx="200" cy="200" r="131" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
+    <circle cx="200" cy="200" r="121" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
+  </svg>
+  </div>
+
+  <div class="modes" role="tablist" aria-label="Mode tampilan" id="modes">
+    <button role="tab" data-m="needle" aria-selected="true">JARUM</button>
+    <button role="tab" data-m="strobe" aria-selected="false">STROBO</button>
+  </div>
+
+  <!-- ================= KONTROL ================= -->
+  <div class="panel">
+    <div class="tabs" role="tablist" aria-label="Pilih instrumen" id="tabs"></div>
+    <select id="preset" aria-label="Pilih tuning"></select>
+    <div class="strings" id="strings"></div>
+    <div class="row">
+      <button class="start" id="start">MULAI</button>
+      <div class="calib">
+        <button id="a4dn" aria-label="Turunkan kalibrasi A4">−</button>
+        <b><i>A4</i><span id="a4v">440</span></b>
+        <button id="a4up" aria-label="Naikkan kalibrasi A4">+</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="status" id="status">Ketuk senar untuk mendengar nada acuan.</p>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. DATA — tiap instrumen cuma beda daftar nomor MIDI senar
+   ============================================================ */
+const NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+const INSTRUMENTS = {
+  gitar: { label:"Gitar", icon:"guitar", presets:[
+    { name:"Standard  E A D G B E", midi:[40,45,50,55,59,64] },
+    { name:"Drop D  D A D G B E",   midi:[38,45,50,55,59,64] },
+    { name:"Half-step down  Eb",    midi:[39,44,49,54,58,63] },
+    { name:"Open G  D G D G B D",   midi:[38,43,50,55,59,62] },
+    { name:"DADGAD",                midi:[38,45,50,55,57,62] },
+  ]},
+  biola: { label:"Biola", icon:"violin", presets:[
+    { name:"Biola — G D A E", midi:[55,62,69,76] },
+    { name:"Viola — C G D A", midi:[48,55,62,69] },
+    { name:"Cello — C G D A", midi:[36,43,50,57] },
+  ]},
+  bass: { label:"Bass", icon:"guitar", presets:[
+    { name:"Bass 4 senar — E A D G",   midi:[28,33,38,43] },
+    { name:"Bass 5 senar — B E A D G", midi:[23,28,33,38,43] },
+  ]},
+  ukulele: { label:"Ukulele", icon:"guitar", presets:[
+    { name:"Sopran/Konser — G C E A", midi:[67,60,64,69] },
+    { name:"Bariton — D G B E",       midi:[50,55,59,64] },
+  ]},
+};
+
+/* ============================================================
+   2. MATEMATIKA NADA
+   ============================================================ */
+let A4 = 440;
+const midiToFreq   = m => A4 * Math.pow(2, (m - 69) / 12);
+const centsBetween = (f, ref) => 1200 * Math.log2(f / ref);
+const midiToName   = m => ({ name: NOTE_NAMES[((m % 12) + 12) % 12], oct: Math.floor(m / 12) - 1 });
+
+/* ============================================================
+   3. DETEKSI PITCH — algoritma YIN
+   Identik untuk gitar, biola, bass, ukulele.
+   ============================================================ */
+const MIN_F = 30, MAX_F = 1500;
+
+function detectPitch(buf, sr){
+  let rms = 0;
+  for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / buf.length);
+  if (rms < 0.008) return -1;                        // gerbang volume
+
+  const maxTau = Math.min(Math.floor(sr / MIN_F), buf.length >> 1);
+  const minTau = Math.max(2, Math.floor(sr / MAX_F));
+  const W = Math.min(2048, buf.length - maxTau);
+  if (W < 512) return -1;
+
+  const d = new Float32Array(maxTau);                // (a) difference function
+  for (let tau = 1; tau < maxTau; tau++){
+    let sum = 0;
+    for (let i = 0; i < W; i++){ const dd = buf[i] - buf[i + tau]; sum += dd * dd; }
+    d[tau] = sum;
+  }
+
+  const cm = new Float32Array(maxTau);               // (b) cumulative mean normalized
+  cm[0] = 1; let run = 0;
+  for (let tau = 1; tau < maxTau; tau++){
+    run += d[tau];
+    cm[tau] = run > 0 ? (d[tau] * tau / run) : 1;
+  }
+
+  let tau = -1;                                      // (c) absolute threshold
+  for (let t = minTau; t < maxTau - 1; t++){
+    if (cm[t] < 0.12){
+      while (t + 1 < maxTau && cm[t + 1] < cm[t]) t++;
+      tau = t; break;
+    }
+  }
+  if (tau < 0){
+    let best = minTau;
+    for (let t = minTau; t < maxTau; t++) if (cm[t] < cm[best]) best = t;
+    if (cm[best] > 0.45) return -1;
+    tau = best;
+  }
+
+  const x0 = cm[tau - 1] ?? cm[tau], x2 = cm[tau + 1] ?? cm[tau];   // (d) parabolik
+  const a = (x0 + x2 - 2 * cm[tau]) / 2, b = (x2 - x0) / 2;
+  const refined = a !== 0 ? tau - b / (2 * a) : tau;
+
+  const freq = sr / refined;
+  return (freq >= MIN_F && freq <= MAX_F) ? freq : -1;
+}
+
+/* ============================================================
+   4. GEOMETRI DIAL
+   Poros jarum sengaja diletakkan di bawah dial (y=340) supaya
+   busur tampil lebar tapi bagian tengah tetap lega untuk angka.
+   ============================================================ */
+const PIVOT_X = 200, PIVOT_Y = 340;
+const R_OUT = 168, R_IN = 148, MAX_DEG = 42;
+const centsToDeg = c => c * (MAX_DEG / 50);
+const polar = (deg, r) => {
+  const a = (deg - 90) * Math.PI / 180;
+  return [PIVOT_X + r * Math.cos(a), PIVOT_Y + r * Math.sin(a)];
+};
+const f2 = n => n.toFixed(2);
+
+/* ============================================================
+   5. STATE + UI
+   ============================================================ */
+const $ = id => document.getElementById(id);
+let instrument = "gitar", presetIndex = 0, strings = [];
+let running = false, audioCtx = null, analyser = null, micStream = null, sampleBuf = null;
+let wantDeg = 0, viewDeg = 0, history = [], lastSeen = 0, rafId = 0, lastDetect = 0;
+let mode = "needle", strobeSpeed = 0, sAng1 = 0, sAng2 = 0, lastFrame = 0;
+
+const currentPreset = () => INSTRUMENTS[instrument].presets[presetIndex];
+
+function buildGauge(){
+  const [ax, ay] = polar(-MAX_DEG, R_OUT), [bx, by] = polar(MAX_DEG, R_OUT);
+  $("gaugeArc").setAttribute("d", `M ${f2(ax)} ${f2(ay)} A ${R_OUT} ${R_OUT} 0 0 1 ${f2(bx)} ${f2(by)}`);
+
+  const zd = centsToDeg(5);                       // zona hijau ±5 cent
+  const [p1x, p1y] = polar(-zd, R_IN),  [p2x, p2y] = polar(zd, R_IN);
+  const [p3x, p3y] = polar(zd, R_OUT),  [p4x, p4y] = polar(-zd, R_OUT);
+  $("gaugeZone").setAttribute("d",
+    `M ${f2(p1x)} ${f2(p1y)} A ${R_IN} ${R_IN} 0 0 1 ${f2(p2x)} ${f2(p2y)} ` +
+    `L ${f2(p3x)} ${f2(p3y)} A ${R_OUT} ${R_OUT} 0 0 0 ${f2(p4x)} ${f2(p4y)} Z`);
+
+  let ticks = "";
+  for (let c = -50; c <= 50; c += 5){
+    const major = c % 25 === 0, deg = centsToDeg(c);
+    const [x1, y1] = polar(deg, R_OUT);
+    const [x2, y2] = polar(deg, R_OUT - (major ? 13 : 7));
+    ticks += `<line x1="${f2(x1)}" y1="${f2(y1)}" x2="${f2(x2)}" y2="${f2(y2)}" ` +
+      `stroke="rgba(228,236,242,${major ? .82 : .42})" stroke-width="${major ? 2.2 : 1.2}" stroke-linecap="round"/>`;
+  }
+  $("gaugeTicks").innerHTML = ticks;
+
+  // hanya −50 dan +50 — titik nol sudah diwakili pita hijau
+  $("gaugeLabels").innerHTML = [-50, 50].map(c => {
+    const [x, y] = polar(centsToDeg(c), R_OUT - 26);
+    return `<text x="${f2(x)}" y="${f2(y + 4)}">${c > 0 ? "+" + c : c}</text>`;
+  }).join("");
+}
+
+function buildTabs(){
+  $("tabs").innerHTML = Object.entries(INSTRUMENTS).map(([k, v]) =>
+    `<button role="tab" data-k="${k}" aria-selected="${k === instrument}">${v.label}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => {
+    instrument = b.dataset.k; presetIndex = 0;
+    buildTabs(); buildPresets(); buildStrings(); syncIcons(); resetDisplay();
+  });
+}
+
+function syncIcons(){
+  const ico = INSTRUMENTS[instrument].icon;
+  $("icoGuitar").setAttribute("opacity", ico === "guitar" ? "1" : ".3");
+  $("icoViolin").setAttribute("opacity", ico === "violin" ? "1" : ".3");
+}
+
+function buildPresets(){
+  $("preset").innerHTML = INSTRUMENTS[instrument].presets
+    .map((p, i) => `<option value="${i}"${i === presetIndex ? " selected" : ""}>${p.name}</option>`).join("");
+}
+
+function buildStrings(){
+  strings = currentPreset().midi.map(m => {
+    const { name, oct } = midiToName(m);
+    return { midi:m, label:name + oct, freq:midiToFreq(m) };
+  });
+  $("strings").innerHTML = strings.map((s, i) =>
+    `<button class="chip" data-i="${i}" aria-label="Nada acuan ${s.label}">
+       <span class="n">${s.label}</span><span class="f">${s.freq.toFixed(1)}</span>
+     </button>`).join("");
+  $("strings").querySelectorAll(".chip").forEach(c =>
+    c.onclick = () => playTone(strings[+c.dataset.i].freq));
+}
+
+/* ---------- mode tampilan: jarum / strobo ---------- */
+function setMode(m){
+  mode = m;
+  $("modes").querySelectorAll("button").forEach(b =>
+    b.setAttribute("aria-selected", String(b.dataset.m === m)));
+  $("gaugeGroup").style.display  = m === "needle" ? "" : "none";
+  $("strobeGroup").style.display = m === "strobe" ? "" : "none";
+  // di mode strobo pembacaan naik ke tengah cincin
+  $("readout").setAttribute("transform", m === "strobe" ? "translate(0,-42)" : "translate(0,0)");
+  if (!running) $("status").textContent = m === "strobe"
+    ? "Strobo: pola berhenti berputar = nada sudah pas."
+    : "Ketuk senar untuk mendengar nada acuan.";
+}
+
+function resetDisplay(){
+  history = []; wantDeg = 0; strobeSpeed = 0;
+  $("dTarget").textContent = "—";
+  $("dNote").textContent = "—";
+  $("dNote").setAttribute("fill", "#EAF7FF");
+  $("dHz").textContent = running ? "petik satu senar…" : "tekan MULAI";
+  $("dCents").textContent = "";
+  $("needle").setAttribute("fill", "#EAF7FF");
+  $("needleGlow").setAttribute("fill", "#8FD3F4");
+  $("strobeBand1").setAttribute("stroke", "#D7DEE4");
+  $("strobeBand2").setAttribute("stroke", "#8FA6B9");
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active", "tuned"));
+}
+
+/* ---------- nada acuan ---------- */
+async function playTone(freq){
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  await audioCtx.resume();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+  osc.type = "triangle"; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t); osc.stop(t + 1.45);
+}
+
+/* ---------- mikrofon ---------- */
+async function start(){
+  try {
+    $("status").className = "status";
+    $("status").textContent = "Meminta izin mikrofon…";
+
+    micStream = await navigator.mediaDevices.getUserMedia({ audio:{
+      echoCancellation:false,   // WAJIB false — kalau tidak, pitch jadi kacau
+      noiseSuppression:false,
+      autoGainControl:false,
+    }});
+
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    await audioCtx.resume();    // iOS: harus setelah tap user
+
+    const src = audioCtx.createMediaStreamSource(micStream);
+    const hp = audioCtx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 30;
+    const lp = audioCtx.createBiquadFilter(); lp.type = "lowpass";  lp.frequency.value = 1600;
+    analyser = audioCtx.createAnalyser(); analyser.fftSize = 4096;
+    src.connect(hp).connect(lp).connect(analyser);
+    sampleBuf = new Float32Array(analyser.fftSize);
+
+    running = true;
+    $("start").textContent = "BERHENTI";
+    $("start").classList.add("on");
+    $("status").textContent = "Mendengarkan… petik satu senar.";
+    resetDisplay(); loop();
+  } catch (e){
+    $("status").className = "status err";
+    $("status").textContent = "Mikrofon ditolak / tidak tersedia. Pastikan halaman dibuka lewat HTTPS.";
+  }
+}
+
+function stop(){
+  running = false;
+  cancelAnimationFrame(rafId);
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  micStream = null; analyser = null;
+  $("start").textContent = "MULAI";
+  $("start").classList.remove("on");
+  $("status").className = "status";
+  $("status").textContent = "Ketuk senar untuk mendengar nada acuan.";
+  resetDisplay();
+}
+
+/* ---------- loop utama ---------- */
+function loop(){
+  if (!running) return;
+  rafId = requestAnimationFrame(loop);
+
+  const now = performance.now();
+  if (now - lastDetect > 70 && analyser){
+    lastDetect = now;
+    analyser.getFloatTimeDomainData(sampleBuf);
+    const freq = detectPitch(sampleBuf, audioCtx.sampleRate);
+
+    if (freq > 0){
+      history.push(freq);
+      if (history.length > 5) history.shift();
+      render([...history].sort((a, b) => a - b)[history.length >> 1]);
+      lastSeen = now;
+    } else if (now - lastSeen > 1200){
+      resetDisplay();
+    }
+  }
+
+  const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
+  lastFrame = now;
+
+  if (mode === "needle"){
+    viewDeg += (wantDeg - viewDeg) * 0.3;                     // jarum halus
+    $("needleG").setAttribute("transform", `rotate(${viewDeg.toFixed(2)} ${PIVOT_X} ${PIVOT_Y})`);
+  } else {
+    // Strobo: kecepatan putar sebanding selisih cent.
+    // Diam = pas · searah jarum jam = ketinggian · berlawanan = kerendahan.
+    sAng1 = (sAng1 + strobeSpeed * dt) % 360;
+    sAng2 = (sAng2 + strobeSpeed * 1.5 * dt) % 360;  // 16 pita, laju linier sama
+    $("strobeRot1").setAttribute("transform", `rotate(${sAng1.toFixed(2)} 200 200)`);
+    $("strobeRot2").setAttribute("transform", `rotate(${sAng2.toFixed(2)} 200 200)`);
+  }
+}
+
+/* ---------- tampilkan hasil ---------- */
+function render(freq){
+  let best = strings[0], bestAbs = Infinity;
+  for (const s of strings){
+    const c = Math.abs(centsBetween(freq, s.freq));
+    if (c < bestAbs){ bestAbs = c; best = s; }
+  }
+  const cents  = centsBetween(freq, best.freq);
+  const inTune = Math.abs(cents) < 5;
+  const close  = Math.abs(cents) < 15;
+  const color  = inTune ? "#7FE0A6" : close ? "#F0A960" : "#F58A7E";
+  const glow   = inTune ? "#3FB878" : close ? "#C97A2E" : "#C6534A";
+
+  const nm = midiToName(best.midi);
+  $("dTarget").textContent = "SENAR " + best.label;
+  $("dNote").textContent   = nm.name + nm.oct;
+  $("dNote").setAttribute("fill", color);
+  $("dHz").textContent     = freq.toFixed(1) + " Hz · target " + best.freq.toFixed(1);
+  $("dCents").textContent  = inTune ? "PAS ✓"
+    : (cents < 0 ? "RENDAH " : "TINGGI ") + (cents > 0 ? "+" : "") + cents.toFixed(0) + " CENT";
+  $("dCents").setAttribute("fill", inTune ? "#7FE0A6" : "rgba(228,236,242,.72)");
+
+  $("needle").setAttribute("fill", color);
+  $("needleGlow").setAttribute("fill", glow);
+  wantDeg = centsToDeg(Math.max(-50, Math.min(50, cents)));
+  strobeSpeed = Math.max(-240, Math.min(240, cents * 4));
+  $("strobeBand1").setAttribute("stroke", inTune ? "#B6F0CC" : close ? "#F0D8B4" : "#D7DEE4");
+  $("strobeBand2").setAttribute("stroke", inTune ? "#79C79A" : close ? "#C6A277" : "#8FA6B9");
+
+  document.querySelectorAll(".chip").forEach(c => {
+    const s = strings[+c.dataset.i];
+    c.classList.toggle("active", s.midi === best.midi && !inTune);
+    c.classList.toggle("tuned",  s.midi === best.midi && inTune);
+  });
+
+  if (inTune && navigator.vibrate) navigator.vibrate(18);
+}
+
+/* ---------- kalibrasi A4 ---------- */
+function setA4(v){
+  A4 = Math.max(430, Math.min(450, v));
+  $("a4v").textContent = A4;
+  buildStrings();
+}
+
+/* ---------- wiring ---------- */
+$("preset").onchange = e => { presetIndex = +e.target.value; buildStrings(); resetDisplay(); };
+$("modes").querySelectorAll("button").forEach(b => b.onclick = () => setMode(b.dataset.m));
+$("start").onclick   = () => running ? stop() : start();
+$("a4up").onclick    = () => setA4(A4 + 1);
+$("a4dn").onclick    = () => setA4(A4 - 1);
+
+buildGauge(); buildTabs(); buildPresets(); buildStrings(); syncIcons(); setMode("needle"); resetDisplay();
+
+/* pratinjau tanpa mikrofon: tambahkan ?demo=1 di URL */
+if (new URLSearchParams(location.search).get("demo")){
+  if (new URLSearchParams(location.search).get("strobe")) setMode("strobe");
+  render(midiToFreq(45) * Math.pow(2, -11 / 1200));
+  viewDeg = wantDeg;
+  $("needleG").setAttribute("transform", `rotate(${wantDeg.toFixed(2)} ${PIVOT_X} ${PIVOT_Y})`);
+}
+</script>
+</body>
+</html>
