@@ -183,6 +183,32 @@
   .fstr.locked .lk{opacity:1}
   .fstr .lk{opacity:0; fill:var(--blue); font-size:9px; text-anchor:middle; transition:opacity .15s}
 
+  /* ---- kepala gitar / bass / ukulele ---- */
+  .hs{display:block; width:100%; height:auto}
+  .hstr{cursor:pointer}
+  .hstr .hit{fill:transparent}
+  .hstr .ln{stroke:#E8DCC4; stroke-linecap:round; transition:stroke .15s}
+  .hstr .pb{fill:#C9A96A; stroke:rgba(0,0,0,.45); stroke-width:.7; transition:fill .15s}
+  .hstr .peg{fill:#E0C48C; stroke:rgba(0,0,0,.5); stroke-width:.8; transition:fill .15s}
+  .hstr .lb{fill:var(--ink); font:700 12.5px var(--sans); text-anchor:middle;
+    paint-order:stroke; stroke:rgba(10,8,6,.75); stroke-width:2.6px;
+    stroke-linejoin:round; transition:fill .15s}
+  .hstr .hz{fill:var(--ink3); font:500 9px var(--sans); text-anchor:middle;
+    paint-order:stroke; stroke:rgba(10,8,6,.65); stroke-width:2.2px; stroke-linejoin:round}
+  .hstr:hover .ln{stroke:#FFF}
+  .hstr:hover .peg{fill:#FBEFD6}
+  .hstr:hover .lb{fill:var(--brass)}
+  .hstr.active .ln{stroke:#E9A05C}
+  .hstr.active .peg,.hstr.active .pb{fill:#F0BC6E}
+  .hstr.active .lb{fill:#F0BC6E}
+  .hstr.tuned .ln{stroke:#7FE0A6}
+  .hstr.tuned .peg,.hstr.tuned .pb{fill:#7FE0A6}
+  .hstr.tuned .lb{fill:#7FE0A6}
+  .hstr.locked .lb{fill:var(--blue)}
+  .hstr.locked .peg{fill:var(--blue)}
+  .hstr.locked .lk{opacity:1}
+  .hstr .lk{opacity:0; fill:var(--blue); font-size:9px; text-anchor:middle; transition:opacity .15s}
+
   /* ---- indikator kekuatan sinyal ---- */
   .level{width:100%; height:4px; border-radius:3px; background:rgba(0,0,0,.42); overflow:hidden}
   .level i{display:block; height:100%; width:100%; border-radius:3px;
@@ -570,7 +596,7 @@ function buildStrings(){
   updateBandLimits();
 
   if (INSTRUMENTS[instrument].icon === "violin") buildFingerboard();
-  else buildChips();
+  else buildHeadstock();
 
   $("strings").querySelectorAll(".sstr").forEach(el => {
     el.onclick = () => pickString(+el.dataset.i);
@@ -625,6 +651,75 @@ function buildFingerboard(){
       <path d="M140 16 L200 16 L268 120 L72 120 Z" fill="url(#wood)"
             stroke="rgba(224,174,92,.28)" stroke-width="1"/>
       <rect x="136" y="9" width="68" height="7.5" rx="3"
+            fill="#D9CFC0" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>
+      ${parts}
+    </svg>`;
+}
+
+/* Kepala gitar / bass / ukulele: pasak kuningan seperti alat aslinya.
+   Ketuk pasak atau labelnya untuk membunyikan nada acuan sekaligus mengunci senar. */
+function buildHeadstock(){
+  const n = strings.length;
+  const inline = instrument === "bass";          // bass: pasak sebaris di satu sisi
+  const pegs = [];
+  if (inline){
+    const y0 = 16, y1 = 74;
+    for (let i = 0; i < n; i++)
+      pegs.push({ px:164, bx:112, side:-1, py: n > 1 ? y0 + (y1 - y0) * i / (n - 1) : 45 });
+  } else {                                       // gitar 3+3, ukulele 2+2
+    const half = Math.ceil(n / 2);
+    const py = k => half > 1 ? 20 + (48 / (half - 1)) * k : 44;
+    for (let i = 0; i < n; i++)
+      pegs.push(i < half ? { px:164, bx:112, side:-1, py: py(i) }
+                         : { px:236, bx:252, side: 1, py: py(n - 1 - i) });
+  }
+
+  const nutX = i => 146 + 108 * (i + .5) / n;
+  const botX = i =>  80 + 240 * (i + .5) / n;
+
+  const parts = strings.map((s, i) => {
+    const p = pegs[i], nx = nutX(i), bx = botX(i);
+    const w  = 1.0 + (n - 1 - i) * 0.45;               // senar bawah lebih tebal
+    const cn = p.side < 0 ? p.bx + 36 : p.bx - 16;     // batang penghubung pasak
+    const ln = `M${p.px} ${p.py.toFixed(1)} C${p.px} ${(p.py + 14).toFixed(1)} ` +
+               `${nx.toFixed(1)} 66 ${nx.toFixed(1)} 84 L${bx.toFixed(1)} 168`;
+    return `<g class="hstr sstr" data-i="${i}" tabindex="0" role="button"
+               aria-label="Nada acuan ${s.label}">
+      <rect class="hit" x="${p.side < 0 ? 96 : 224}" y="${(p.py - 12).toFixed(1)}" width="80" height="24"/>
+      <rect class="hit" x="${(bx - 28).toFixed(1)}" y="158" width="56" height="42"/>
+      <path class="ln" d="${ln}" fill="none" stroke-width="${w.toFixed(2)}"/>
+      <rect class="pb" x="${cn}" y="${(p.py - 2).toFixed(1)}" width="16" height="4" rx="2"/>
+      <rect class="pb" x="${p.bx}" y="${(p.py - 5).toFixed(1)}" width="36" height="10" rx="3"/>
+      <circle class="peg" cx="${p.px}" cy="${p.py.toFixed(1)}" r="5"/>
+      <text class="lb" x="${bx.toFixed(1)}" y="186">${s.label}</text>
+      <text class="hz" x="${bx.toFixed(1)}" y="196">${s.freq.toFixed(1)}</text>
+      <text class="lk" x="${p.px}" y="${(p.py - 9).toFixed(1)}">●</text>
+    </g>`;
+  }).join("");
+
+  $("strings").className = "";
+  $("strings").innerHTML =
+   `<svg class="hs" viewBox="0 0 400 200" role="group"
+         aria-label="Kepala ${INSTRUMENTS[instrument].label}">
+      <defs>
+        <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#3B2A1B"/><stop offset=".40" stop-color="#5A4229"/>
+          <stop offset=".68" stop-color="#42301E"/><stop offset="1" stop-color="#251A10"/>
+        </linearGradient>
+        <linearGradient id="wood2" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#312417"/><stop offset=".45" stop-color="#4E3925"/>
+          <stop offset="1" stop-color="#1F160E"/>
+        </linearGradient>
+      </defs>
+      <path d="M142 84 L258 84 L330 168 L70 168 Z" fill="url(#wood2)"
+            stroke="rgba(224,174,92,.32)" stroke-width="1"/>
+      <path d="M136 6 L264 6 L258 78 L142 78 Z" fill="url(#wood)"
+            stroke="rgba(224,174,92,.45)" stroke-width="1.2"/>
+      <g fill="none" stroke="#E0AE5C" stroke-width="1.1" opacity=".45">
+        <path d="M200 22 L222 44 L200 66 L178 44 Z"/>
+        <path d="M200 34 L210 44 L200 54 L190 44 Z"/>
+      </g>
+      <rect x="138" y="76" width="124" height="8" rx="3"
             fill="#D9CFC0" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>
       ${parts}
     </svg>`;
