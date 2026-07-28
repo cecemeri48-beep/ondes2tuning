@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#141312">
+<meta name="theme-color" content="#F7EAD5">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="The Onde2&#8217;S">
 <meta name="description" content="Tuner digital gitar, biola, bass, dan ukulele dengan mode jarum dan strobo.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -15,180 +15,206 @@
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --text:#F2F0ED; --text2:rgba(242,240,237,.66); --text3:rgba(242,240,237,.40);
-    --panel:rgba(255,255,255,.045); --line:rgba(255,255,255,.13); --line2:rgba(255,255,255,.07);
-    --redlit:#E0454A; --green:#72BC8F; --blue:#5E9FE8; --redx:#E97366;
+    --ink:#2B211B; --ink2:rgba(43,33,27,.70); --ink3:rgba(43,33,27,.48);
+    --surface:#FFFCF6; --surface2:#F4EADA;
+    --panel:rgba(255,252,246,.86); --line:rgba(43,33,27,.16); --line2:rgba(43,33,27,.10);
+    --terra:#B4472E; --terra-dk:#8E3520; --ochre:#D89B3C; --teal:#2C6E6A;
+    --green:#2E8B62; --blue:#2C6E9B; --red:#B23B26;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   html{height:100%}
   body{
-    background:radial-gradient(120% 80% at 50% 10%, #232120 0%, #171614 52%, #0D0C0B 100%);
-    color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.5;
+    background:
+      radial-gradient(125% 80% at 50% 0%, #FFFBF2 0%, #F7EAD5 52%, #EEDDC2 100%);
+    color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.5;
     -webkit-font-smoothing:antialiased;
     min-height:100%;
     display:flex; justify-content:center; align-items:center;
     padding:clamp(8px,1.6vh,20px) 14px calc(clamp(8px,1.6vh,20px) + env(safe-area-inset-bottom));
   }
-  body::before{ /* butiran kulit */
-    content:""; position:fixed; inset:0; pointer-events:none; opacity:.5; z-index:0;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='.5'/></svg>");
-    mix-blend-mode:overlay;
+  /* ukiran Toraja (pa'tedong) — motif latar, lembut dan terang */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.22;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><g fill='none' stroke='%23B4472E' stroke-width='1.5'><path d='M64 6 L122 64 L64 122 L6 64 Z'/><path d='M64 26 L102 64 L64 102 L26 64 Z'/><path d='M64 46 L82 64 L64 82 L46 64 Z'/><path d='M0 64 L6 64 M122 64 L128 64 M64 0 L64 6 M64 122 L64 128'/></g><g fill='%232C6E6A' opacity='.55'><circle cx='64' cy='64' r='3.4'/><circle cx='0' cy='0' r='3'/><circle cx='128' cy='0' r='3'/><circle cx='0' cy='128' r='3'/><circle cx='128' cy='128' r='3'/></g></svg>");
+    background-size:128px 128px;
   }
+  /* serat kertas halus supaya tidak terasa datar */
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.30;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.35'/></svg>");
+  }
+
   .app{position:relative; z-index:1; width:100%; max-width:420px;
     display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.4vh,14px)}
 
   /* ---- kepala merek ---- */
-  .brand{display:flex; align-items:center; gap:10px; width:100%; padding:0 2px}
-  .brand .mark{width:38px; height:38px; flex:none; display:block;
-    filter:drop-shadow(0 2px 7px rgba(0,0,0,.55))}
-  .brand h1{font:700 15.5px/1.2 var(--sans); color:var(--text)}
+  .brand{position:relative; display:flex; align-items:center; gap:10px; width:100%;
+    padding:10px 12px; border-radius:14px; overflow:hidden;
+    background:linear-gradient(180deg,#FFFDF8,#F6EDDD);
+    border:1px solid var(--line2);
+    box-shadow:0 1px 2px rgba(43,33,27,.05), 0 4px 14px rgba(43,33,27,.05)}
+  /* pita tenun lipa' sabbe */
+  .brand::after{content:""; position:absolute; left:0; right:0; bottom:0; height:4px;
+    background:repeating-linear-gradient(90deg,
+      var(--terra) 0 14px, var(--ochre) 14px 22px, var(--teal) 22px 30px,
+      rgba(43,33,27,.18) 30px 34px)}
+  .brand .mark{width:40px; height:40px; flex:none; display:block;
+    filter:drop-shadow(0 2px 6px rgba(43,33,27,.20))}
+  .brand h1{font:700 15.5px/1.2 var(--sans); color:var(--ink)}
   .brand p{font:600 9.5px/1.5 var(--sans); letter-spacing:.17em; text-transform:uppercase;
-    color:var(--text3)}
+    color:var(--terra)}
 
   /* ---- layar utama: kotak, angka besar, latar pegunungan ---- */
   .screen{position:relative; width:100%; border-radius:16px; overflow:hidden;
-    border:1px solid rgba(255,255,255,.14); padding:12px 12px 10px;
+    border:1px solid var(--line); padding:12px 12px 10px;
     display:flex; flex-direction:column; gap:9px;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 10px 26px rgba(0,0,0,.55)}
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 6px 20px rgba(43,33,27,.10)}
   .scene{position:absolute; inset:0; width:100%; height:100%; z-index:0}
   .sread{position:relative; z-index:1; text-align:center; isolation:isolate}
   .sread::before{content:""; position:absolute; inset:-10px -12px -6px; z-index:-1;
-    background:radial-gradient(72% 108% at 50% 48%,
-      rgba(4,10,14,.78) 0%, rgba(4,10,14,.52) 52%, rgba(4,10,14,0) 78%)}
+    background:radial-gradient(74% 110% at 50% 48%,
+      rgba(255,251,242,.92) 0%, rgba(255,251,242,.66) 54%, rgba(255,251,242,0) 80%)}
   .starget{font:700 10.5px/1.4 var(--sans); letter-spacing:.22em; text-transform:uppercase;
-    color:rgba(228,236,242,.72)}
+    color:var(--terra)}
   .snote{font:700 clamp(52px,15vw,74px)/1.02 var(--sans); letter-spacing:-.02em;
-    color:#EAF7FF; margin:2px 0; font-variant-numeric:tabular-nums;
-    text-shadow:0 2px 20px rgba(0,0,0,.85), 0 0 6px rgba(0,0,0,.5); transition:color .12s}
-  .shz{font:500 11.5px/1.35 var(--sans); color:rgba(228,236,242,.66);
+    color:var(--ink); margin:2px 0; font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 10px rgba(255,251,242,.9); transition:color .12s}
+  .shz{font:500 11.5px/1.35 var(--sans); color:var(--ink2);
     font-variant-numeric:tabular-nums}
   .scents{font:700 12px/1.45 var(--sans); letter-spacing:.06em;
-    color:rgba(228,236,242,.72); min-height:18px}
+    color:var(--ink2); min-height:18px}
 
   /* ---- bilah cent mendatar ---- */
   .gauge{position:relative; z-index:1; height:58px; border-radius:10px;
-    background:rgba(6,14,18,.42); border:1px solid rgba(255,255,255,.10)}
+    background:rgba(255,251,242,.82); border:1px solid var(--line2);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
   .gzone{position:absolute; left:50%; top:0; bottom:17px; width:9.2%;
     transform:translateX(-50%);
-    background:linear-gradient(180deg,rgba(114,188,143,.30),rgba(114,188,143,.06));
-    border-left:1px solid rgba(114,188,143,.40);
-    border-right:1px solid rgba(114,188,143,.40)}
+    background:linear-gradient(180deg,rgba(46,139,98,.26),rgba(46,139,98,.06));
+    border-left:1px solid rgba(46,139,98,.55);
+    border-right:1px solid rgba(46,139,98,.55)}
   .gticks{position:absolute; left:4%; right:4%; top:0; bottom:17px}
   .gticks i{position:absolute; bottom:0; width:1.4px; border-radius:1px;
-    transform:translateX(-50%); background:rgba(228,236,242,.42)}
-  .gticks i.mj{width:2.2px; background:rgba(228,236,242,.85)}
+    transform:translateX(-50%); background:rgba(43,33,27,.35)}
+  .gticks i.mj{width:2.2px; background:rgba(43,33,27,.72)}
   .gmark{position:absolute; left:50%; top:6px; bottom:19px; width:0; z-index:2;
-    transition:left .09s linear}
+    will-change:left; transition:left .09s linear}
   .gmark i{position:absolute; left:50%; top:0; bottom:0; width:4px; border-radius:3px;
-    transform:translateX(-50%); background:#EAF7FF;
-    box-shadow:0 0 12px 3px rgba(143,211,244,.75)}
+    transform:translateX(-50%); background:var(--ink);
+    box-shadow:0 0 10px 2px rgba(43,33,27,.28)}
   .glabels{position:absolute; left:4%; right:4%; bottom:3px; display:flex;
     justify-content:space-between; font:600 9.5px/1 var(--sans); letter-spacing:.08em;
-    color:rgba(228,236,242,.50); font-variant-numeric:tabular-nums}
+    color:var(--ink3); font-variant-numeric:tabular-nums}
   @media (prefers-reduced-motion:reduce){ .gmark{transition:none} }
 
   /* ---- mode strobo ---- */
   .strobe{position:relative; z-index:1; display:none; flex-direction:column; gap:6px}
-  .sband{height:27px; border-radius:9px; border:1px solid rgba(255,255,255,.10);
-    background-color:rgba(6,14,18,.62);
+  .sband{height:27px; border-radius:9px; border:1px solid var(--line2);
+    background-color:rgba(255,251,242,.88);
     background-image:repeating-linear-gradient(90deg,
-      var(--sc,#D7DEE4) 0 14px, rgba(0,0,0,0) 14px 28px)}
+      var(--sc,#6B5A4A) 0 14px, rgba(0,0,0,0) 14px 28px)}
   .sband.b2{background-image:repeating-linear-gradient(90deg,
-      var(--sc,#8FA6B9) 0 10px, rgba(0,0,0,0) 10px 20px)}
+      var(--sc,#9A8878) 0 10px, rgba(0,0,0,0) 10px 20px)}
 
   .modes{display:flex; gap:4px; padding:4px; border-radius:11px;
-    background:rgba(0,0,0,.34); border:1px solid var(--line2)}
+    background:var(--surface2); border:1px solid var(--line2)}
   .modes button{width:96px; height:36px; border:1px solid transparent; border-radius:8px;
-    background:transparent; color:var(--text2); font:600 12.5px/1 var(--sans);
+    background:transparent; color:var(--ink2); font:600 12.5px/1 var(--sans);
     letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s,border-color .15s}
-  .modes button:hover{color:var(--text); background:rgba(255,255,255,.07)}
+  .modes button:hover{color:var(--ink); background:rgba(255,255,255,.75)}
   .modes button[aria-selected="true"]{
-    background:linear-gradient(180deg,#EDEEEF,#A9AEB2 48%,#D6D9DB 52%,#8E9398);
-    color:#1A1918; border-color:rgba(255,255,255,.5); text-shadow:0 1px 0 rgba(255,255,255,.4)}
+    background:linear-gradient(180deg,#C25636,#A03C24);
+    color:#FFF6EC; border-color:rgba(43,33,27,.18);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
 
   .panel{width:100%; background:var(--panel); border:1px solid var(--line);
     border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:8px;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 6px 18px rgba(0,0,0,.4)}
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 4px 16px rgba(43,33,27,.07)}
 
   .tabs{display:flex; gap:4px}
-  .tabs button{flex:1; min-width:0; height:36px; border:1px solid transparent; border-radius:8px;
-    background:rgba(0,0,0,.28); color:var(--text2); font:600 13px/1 var(--sans);
+  .tabs button{flex:1; min-width:0; height:36px; border:1px solid var(--line2); border-radius:8px;
+    background:var(--surface2); color:var(--ink2); font:600 13px/1 var(--sans);
     cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     transition:background .15s,color .15s,border-color .15s}
-  .tabs button:hover{color:var(--text); background:rgba(255,255,255,.07)}
+  .tabs button:hover{color:var(--ink); background:#FFFDF8}
   .tabs button[aria-selected="true"]{
-    background:linear-gradient(180deg,#EDEEEF,#A9AEB2 48%,#D6D9DB 52%,#8E9398);
-    color:#1A1918; border-color:rgba(255,255,255,.5); text-shadow:0 1px 0 rgba(255,255,255,.4)}
+    background:linear-gradient(180deg,#C25636,#A03C24);
+    color:#FFF6EC; border-color:rgba(43,33,27,.18);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
 
   select{width:100%; height:38px; padding:0 34px 0 12px; border-radius:8px;
-    background:rgba(0,0,0,.28) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' stroke='rgba(242,240,237,.55)' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
-    border:1px solid var(--line2); color:var(--text); font:500 13.5px/1 var(--sans);
-    -webkit-appearance:none; appearance:none; cursor:pointer; color-scheme:dark}
-  /* popup dropdown native (Chrome Windows/Linux) ikut tema gelap */
-  select option{background:#1E1C1A; color:#F2F0ED}
-  select option:checked{background:#C1272D; color:#FFF}
+    background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' stroke='rgba(43,33,27,.55)' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+    border:1px solid var(--line2); color:var(--ink); font:500 13.5px/1 var(--sans);
+    -webkit-appearance:none; appearance:none; cursor:pointer; color-scheme:light}
+  select option{background:#FFFCF6; color:#2B211B}
+  select option:checked{background:#B4472E; color:#FFF}
 
   .strings{display:flex; gap:5px; width:100%}
   .chip{flex:1; min-width:0; height:50px; border-radius:8px; cursor:pointer;
-    background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));
-    border:1px solid var(--line2); color:var(--text2); font-family:var(--sans);
+    background:linear-gradient(180deg,#FFFDF8,#F4EADA);
+    border:1px solid var(--line2); color:var(--ink2); font-family:var(--sans);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
     padding:0 2px; transition:border-color .15s,background .15s,color .15s}
-  .chip:hover{background:rgba(255,255,255,.12); color:var(--text)}
+  .chip:hover{background:#FFFDF8; color:var(--ink)}
   .chip .n{font:600 13.5px/1 var(--sans)}
-  .chip .f{font-size:9.5px; color:var(--text3); font-variant-numeric:tabular-nums}
-  .chip.active{border-color:var(--redlit); background:rgba(224,69,74,.20); color:var(--text)}
-  .chip.tuned{border-color:var(--green); background:rgba(114,188,143,.20); color:var(--text)}
-  .chip.locked{border-color:var(--blue); box-shadow:inset 0 0 0 1px rgba(94,159,232,.55)}
+  .chip .f{font-size:9.5px; color:var(--ink3); font-variant-numeric:tabular-nums}
+  .chip.active{border-color:var(--terra); background:rgba(180,71,46,.14); color:var(--ink)}
+  .chip.tuned{border-color:var(--green); background:rgba(46,139,98,.16); color:var(--ink)}
+  .chip.locked{border-color:var(--blue); box-shadow:inset 0 0 0 1px rgba(44,110,155,.5)}
   .chip.locked .n::after{content:"\00a0\1F512"; font-size:9px}
 
   /* ---- papan jari biola ---- */
   .fb{display:block; width:100%; height:auto}
   .fstr{cursor:pointer}
   .fstr .hit{fill:transparent}
-  .fstr .ln{stroke:#CBD3DA; stroke-linecap:round; transition:stroke .15s,stroke-width .15s}
-  .fstr .lb{fill:var(--text2); font:600 12px var(--sans); text-anchor:middle;
-    transition:fill .15s}
-  .fstr .hz{fill:var(--text3); font:400 9px var(--sans); text-anchor:middle}
+  .fstr .ln{stroke:#F2E7D3; stroke-linecap:round; transition:stroke .15s,stroke-width .15s}
+  .fstr .lb{fill:var(--ink); font:700 12.5px var(--sans); text-anchor:middle;
+    paint-order:stroke; stroke:rgba(255,251,242,.9); stroke-width:2.6px;
+    stroke-linejoin:round; transition:fill .15s}
+  .fstr .hz{fill:var(--ink3); font:500 9px var(--sans); text-anchor:middle;
+    paint-order:stroke; stroke:rgba(255,251,242,.85); stroke-width:2.2px; stroke-linejoin:round}
   .fstr:hover .ln{stroke:#FFF}
-  .fstr:hover .lb{fill:var(--text)}
-  .fstr.active .ln{stroke:var(--redlit)}
-  .fstr.active .lb{fill:var(--redlit)}
-  .fstr.tuned  .ln{stroke:var(--green)}
-  .fstr.tuned  .lb{fill:var(--green)}
+  .fstr:hover .lb{fill:var(--terra)}
+  .fstr.active .ln{stroke:#F2AE60}
+  .fstr.active .lb{fill:#B4712A}
+  .fstr.tuned  .ln{stroke:#8FE3B4}
+  .fstr.tuned  .lb{fill:#1E7A50}
   .fstr.locked .lb{fill:var(--blue)}
   .fstr.locked .lk{opacity:1}
   .fstr .lk{opacity:0; fill:var(--blue); font-size:9px; text-anchor:middle; transition:opacity .15s}
 
   /* ---- indikator kekuatan sinyal ---- */
-  .level{width:100%; height:4px; border-radius:3px; background:rgba(0,0,0,.38); overflow:hidden}
-  .level i{display:block; height:100%; width:0%; border-radius:3px;
-    background:linear-gradient(90deg,#3E6B53,#72BC8F 55%,#DE9255);
-    transition:width .09s linear}
+  .level{width:100%; height:4px; border-radius:3px; background:rgba(43,33,27,.12); overflow:hidden}
+  .level i{display:block; height:100%; width:100%; border-radius:3px;
+    transform:scaleX(0); transform-origin:left center; will-change:transform;
+    background:linear-gradient(90deg,#2C6E6A,#2E8B62 55%,#D89B3C);
+    transition:transform .09s linear}
 
   .row{display:flex; gap:8px; width:100%; align-items:center}
   .start{flex:1; height:46px; border-radius:9px; cursor:pointer;
-    border:1px solid rgba(255,255,255,.28); font:600 15px/1 var(--sans); letter-spacing:.02em;
-    background:linear-gradient(180deg,#D8383D,#A31E24); color:#FFF3F2;
-    text-shadow:0 1px 1px rgba(0,0,0,.45);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 4px 12px rgba(0,0,0,.4);
+    border:1px solid rgba(43,33,27,.20); font:600 15px/1 var(--sans); letter-spacing:.02em;
+    background:linear-gradient(180deg,#C25636,#9C3620); color:#FFF6EC;
+    text-shadow:0 1px 1px rgba(0,0,0,.28);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 4px 12px rgba(156,54,32,.24);
     transition:filter .15s}
-  .start:hover{filter:brightness(1.08)}
-  .start.on{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
-    color:var(--text2); text-shadow:none}
+  .start:hover{filter:brightness(1.06)}
+  .start.on{background:linear-gradient(180deg,#FFFDF8,#EFE3D0);
+    color:var(--ink2); text-shadow:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
 
   .calib{display:flex; align-items:center; gap:1px; height:46px; flex:none;
-    background:rgba(0,0,0,.28); border:1px solid var(--line2); border-radius:9px; padding:3px}
+    background:var(--surface2); border:1px solid var(--line2); border-radius:9px; padding:3px}
   .calib button{width:28px; height:100%; border:0; border-radius:6px; background:transparent;
-    color:var(--text2); font:400 16px/1 var(--sans); cursor:pointer}
-  .calib button:hover{background:rgba(255,255,255,.1); color:var(--text)}
-  .calib b{font:600 11px/1.25 var(--sans); color:var(--text2); text-align:center;
+    color:var(--ink2); font:400 16px/1 var(--sans); cursor:pointer}
+  .calib button:hover{background:#FFFDF8; color:var(--ink)}
+  .calib b{font:600 11px/1.25 var(--sans); color:var(--ink); text-align:center;
     font-variant-numeric:tabular-nums; padding:0 2px; white-space:nowrap}
-  .calib b i{display:block; font-style:normal; font-size:9px; color:var(--text3);
+  .calib b i{display:block; font-style:normal; font-size:9px; color:var(--ink3);
     letter-spacing:.06em; text-transform:uppercase}
 
-  .status{font-size:11.5px; color:var(--text3); text-align:center; min-height:16px; padding:0 6px}
-  .status.err{color:var(--redx)}
+  .status{font-size:11.5px; color:var(--ink3); text-align:center; min-height:16px; padding:0 6px}
+  .status.err{color:var(--red)}
 
   .modes button:focus-visible,
   .tabs button:focus-visible,.calib button:focus-visible,select:focus-visible,
@@ -203,12 +229,15 @@
   <!-- ================= EMBLEM ================= -->
   <header class="brand">
     <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
-      <circle cx="20" cy="20" r="19" fill="#16241D" stroke="#4C7F63" stroke-width="1.4"/>
-      <circle cx="29" cy="11.5" r="2.6" fill="#E8C88A" opacity=".9"/>
-      <path d="M5 28 L15 13 L21 22 L26 16 L35 28 Z" fill="#2E5C46"/>
-      <path d="M15 13 L18.4 18.1 L15 19.6 L11.6 18.1 Z" fill="#DCE7E1"/>
-      <path d="M5 30.5 Q12.5 28.2 20 30.5 T35 30.5" fill="none" stroke="#5E9FE8"
-            stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+      <circle cx="20" cy="20" r="19" fill="#FBF1DE" stroke="#B4472E" stroke-width="1.4"/>
+      <g fill="none" stroke="#D89B3C" stroke-width="1.1" opacity=".9">
+        <circle cx="29" cy="11" r="4"/>
+        <path d="M29 5.4 V7 M29 15 V16.6 M23.4 11 H25 M33 11 H34.6"/>
+      </g>
+      <path d="M5 28 L15 13 L21 22 L26 16 L35 28 Z" fill="#2C6E6A"/>
+      <path d="M15 13 L18.4 18.1 L15 19.6 L11.6 18.1 Z" fill="#FBF1DE"/>
+      <path d="M5 31 L20 24.5 L35 31 L20 37.5 Z" fill="none" stroke="#B4472E" stroke-width="1.3"/>
+      <path d="M13.5 31 L20 28 L26.5 31 L20 34 Z" fill="#D89B3C" opacity=".85"/>
     </svg>
     <div class="btxt">
       <h1>The Onde-Onde&#8217;s Project</h1>
@@ -220,31 +249,75 @@
     <svg class="scene" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#0E1C28"/><stop offset=".55" stop-color="#153040"/>
-          <stop offset="1" stop-color="#173B36"/>
+          <stop offset="0" stop-color="#E8F1EE"/><stop offset=".48" stop-color="#FAEBD1"/>
+          <stop offset="1" stop-color="#F6DCB4"/>
         </linearGradient>
         <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#33714F"/><stop offset="1" stop-color="#173821"/>
+          <stop offset="0" stop-color="#BBD6C4"/><stop offset="1" stop-color="#8FBDA4"/>
+        </linearGradient>
+        <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FBF2E2"/><stop offset="1" stop-color="#F2E3CB"/>
         </linearGradient>
       </defs>
+
       <rect width="400" height="240" fill="url(#sky)"/>
-      <circle cx="332" cy="40" r="15" fill="#EFE4C8" opacity=".38"/>
-      <g fill="#FFFFFF" opacity=".7">
-        <circle cx="40" cy="30" r="1.2"/><circle cx="96" cy="54" r="1"/>
-        <circle cx="150" cy="26" r="1.3"/><circle cx="212" cy="46" r="1"/>
-        <circle cx="268" cy="24" r="1.2"/><circle cx="366" cy="74" r="1"/>
+
+      <!-- pa'barre allo: rosette matahari Toraja -->
+      <g transform="translate(318,52)" opacity=".62">
+        <circle r="20" fill="#F3C97E" opacity=".55"/>
+        <circle r="12.5" fill="none" stroke="#D89B3C" stroke-width="1.6"/>
+        <circle r="6" fill="#D89B3C" opacity=".8"/>
+        <g stroke="#D89B3C" stroke-width="1.6" stroke-linecap="round">
+          <path d="M0 -26 V-17 M0 26 V17 M-26 0 H-17 M26 0 H17"/>
+          <path d="M-18.4 -18.4 L-12 -12 M18.4 -18.4 L12 -12 M-18.4 18.4 L-12 12 M18.4 18.4 L12 12"/>
+        </g>
       </g>
-      <path d="M0 170 L64 104 L108 142 L150 96 L206 170 Z" fill="#33505F"/>
-      <path d="M150 96 L166 116 L150 124 L134 116 Z" fill="#E4EDF2" opacity=".85"/>
-      <path d="M64 104 L76 120 L64 126 L52 120 Z" fill="#E4EDF2" opacity=".7"/>
-      <path d="M168 170 L232 110 L290 152 L336 118 L400 170 Z" fill="#26404E"/>
-      <path d="M232 110 L246 128 L232 135 L218 128 Z" fill="#E4EDF2" opacity=".68"/>
+
+      <!-- kabut lembah -->
+      <path d="M0 150 Q80 140 150 150 T280 148 T400 152 L400 176 L0 176 Z" fill="#FFFFFF" opacity=".35"/>
+
+      <!-- punggungan belakang -->
+      <path d="M0 168 L64 100 L108 140 L150 92 L206 168 Z" fill="#9DB9AE"/>
+      <path d="M150 92 L166 113 L150 121 L134 113 Z" fill="#FFFFFF" opacity=".82"/>
+      <path d="M64 100 L76 117 L64 123 L52 117 Z" fill="#FFFFFF" opacity=".7"/>
+      <!-- punggungan depan -->
+      <path d="M168 170 L232 106 L290 150 L336 114 L400 170 Z" fill="#6E9A87"/>
+      <path d="M232 106 L246 125 L232 132 L218 125 Z" fill="#FFFFFF" opacity=".78"/>
+
+      <!-- siluet tongkonan kecil di kaki bukit -->
+      <g fill="#5B7F6E" opacity=".9">
+        <path d="M96 166 L104 158 L112 154 L120 158 L128 166 Z"/>
+        <rect x="104" y="166" width="16" height="7" rx="1.4"/>
+      </g>
+
+      <!-- dataran / sawah -->
       <rect y="166" width="400" height="74" fill="url(#field)"/>
-      <path d="M0 178 Q100 168 200 180 T400 174" fill="none" stroke="#5E9FE8"
-            stroke-width="2.6" opacity=".70"/>
-      <path d="M0 198 Q120 190 240 202 T400 196" fill="none" stroke="#5E9FE8"
-            stroke-width="1.8" opacity=".45"/>
-      <rect width="400" height="240" fill="rgba(6,12,16,.26)"/>
+      <path d="M0 178 Q100 169 200 180 T400 174" fill="none" stroke="#FFFFFF"
+            stroke-width="2.4" opacity=".55"/>
+      <path d="M0 196 Q120 188 240 199 T400 193" fill="none" stroke="#FFFFFF"
+            stroke-width="1.8" opacity=".38"/>
+
+      <!-- pita ukiran pa'tedong di kaki layar -->
+      <rect y="206" width="400" height="34" fill="url(#band)"/>
+      <rect y="206" width="400" height="1.4" fill="#B4472E" opacity=".55"/>
+      <g fill="none" stroke="#B4472E" stroke-width="1.4" opacity=".55">
+        <path d="M10 223 L26 210 L42 223 L26 236 Z M26 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M58 223 L74 210 L90 223 L74 236 Z M74 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M106 223 L122 210 L138 223 L122 236 Z M122 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M154 223 L170 210 L186 223 L170 236 Z M170 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M202 223 L218 210 L234 223 L218 236 Z M218 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M250 223 L266 210 L282 223 L266 236 Z M266 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M298 223 L314 210 L330 223 L314 236 Z M314 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+        <path d="M346 223 L362 210 L378 223 L362 236 Z M362 223 m-7 0 l7 -6 l7 6 l-7 6 Z"/>
+      </g>
+      <g fill="#2C6E6A" opacity=".55">
+        <circle cx="50" cy="223" r="2.2"/><circle cx="98" cy="223" r="2.2"/>
+        <circle cx="146" cy="223" r="2.2"/><circle cx="194" cy="223" r="2.2"/>
+        <circle cx="242" cy="223" r="2.2"/><circle cx="290" cy="223" r="2.2"/>
+        <circle cx="338" cy="223" r="2.2"/><circle cx="386" cy="223" r="2.2"/>
+      </g>
+
+      <rect width="400" height="240" fill="#FFF8EC" opacity=".10"/>
     </svg>
 
     <div class="sread">
@@ -338,7 +411,8 @@ const midiToName   = m => ({ name: NOTE_NAMES[((m % 12) + 12) % 12], oct: Math.f
    Gitar mulai ~58 Hz sehingga dengung kipas & hum listrik 50 Hz tidak ikut terbaca,
    sementara bass 5 senar tetap bisa turun sampai ~22 Hz. */
 let detMinF = 30, detMaxF = 1500, lastRms = 0;
-const RMS_GATE = 0.013;                              // gerbang volume
+const RMS_GATE = 0.013;
+let _yinD = null, _yinC = null;                              // gerbang volume
 
 function detectPitch(buf, sr){
   let rms = 0;
@@ -351,14 +425,16 @@ function detectPitch(buf, sr){
   const W = Math.min(2048, buf.length - maxTau);
   if (W < 512) return -1;
 
-  const d = new Float32Array(maxTau);                // (a) difference function
+  if (!_yinD || _yinD.length < maxTau){ _yinD = new Float32Array(maxTau); _yinC = new Float32Array(maxTau); }
+  const d = _yinD, cm = _yinC;                       // (a) difference function
+  d.fill(0, 0, maxTau);
   for (let tau = 1; tau < maxTau; tau++){
     let sum = 0;
     for (let i = 0; i < W; i++){ const dd = buf[i] - buf[i + tau]; sum += dd * dd; }
     d[tau] = sum;
   }
 
-  const cm = new Float32Array(maxTau);               // (b) cumulative mean normalized
+  // (b) cumulative mean normalized
   cm[0] = 1; let run = 0;
   for (let tau = 1; tau < maxTau; tau++){
     run += d[tau];
@@ -411,12 +487,17 @@ const f2 = n => n.toFixed(2);
 /* ============================================================
    5. STATE + UI
    ============================================================ */
-const $ = id => document.getElementById(id);
+const _els = new Map();
+const $ = id => {
+  let el = _els.get(id);
+  if (el === undefined){ el = document.getElementById(id); _els.set(id, el); }
+  return el;
+};
 let instrument = "gitar", presetIndex = 0, strings = [];
 let running = false, audioCtx = null, analyser = null, micStream = null, sampleBuf = null;
 let wantPct = 50, viewPct = 50, history = [], lastSeen = 0, rafId = 0, lastDetect = 0;
 let mode = "needle", strobeSpeed = 0, sOff1 = 0, sOff2 = 0, lastFrame = 0;
-let lockedIndex = -1, hpNode = null, lpNode = null, wakeLock = null;
+let lockedIndex = -1, hpNode = null, lpNode = null, wakeLock = null, lastLvl = "";
 
 /* ---------- pengaturan tersimpan ---------- */
 const LS_KEY = "chelebes.tuner.v1";
@@ -529,14 +610,14 @@ function buildFingerboard(){
    `<svg class="fb" viewBox="0 0 340 152" role="group" aria-label="Papan jari">
       <defs>
         <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#241C18"/><stop offset=".40" stop-color="#3B2D25"/>
-          <stop offset=".68" stop-color="#291F1A"/><stop offset="1" stop-color="#17110E"/>
+          <stop offset="0" stop-color="#5A4029"/><stop offset=".40" stop-color="#7A5636"/>
+          <stop offset=".68" stop-color="#63462C"/><stop offset="1" stop-color="#432F1E"/>
         </linearGradient>
       </defs>
       <path d="M140 16 L200 16 L268 120 L72 120 Z" fill="url(#wood)"
-            stroke="rgba(255,255,255,.10)" stroke-width="1"/>
+            stroke="rgba(43,33,27,.25)" stroke-width="1"/>
       <rect x="136" y="9" width="68" height="7.5" rx="3"
-            fill="#D9CFC0" stroke="rgba(0,0,0,.35)" stroke-width=".8"/>
+            fill="#F0E2CB" stroke="rgba(43,33,27,.35)" stroke-width=".8"/>
       ${parts}
     </svg>`;
 }
@@ -586,15 +667,15 @@ function resetDisplay(){
   history = []; wantPct = 50; strobeSpeed = 0;
   $("dTarget").textContent = "—";
   $("dNote").textContent = "—";
-  $("dNote").style.color = "#EAF7FF";
+  $("dNote").style.color = "#2B211B";
   $("dHz").textContent = running ? "petik satu senar…" : "tekan MULAI";
   $("dCents").textContent = "";
-  $("dCents").style.color = "rgba(228,236,242,.72)";
-  $("needle").style.background = "#EAF7FF";
-  $("needle").style.boxShadow  = "0 0 12px 3px rgba(143,211,244,.75)";
+  $("dCents").style.color = "rgba(43,33,27,.70)";
+  $("needle").style.background = "#2B211B";
+  $("needle").style.boxShadow  = "0 0 10px 2px rgba(43,33,27,.28)";
   $("needleG").style.left = "50%";
-  $("strobeBand1").style.setProperty("--sc", "#D7DEE4");
-  $("strobeBand2").style.setProperty("--sc", "#8FA6B9");
+  $("strobeBand1").style.setProperty("--sc", "#6B5A4A");
+  $("strobeBand2").style.setProperty("--sc", "#9A8878");
   document.querySelectorAll(".sstr").forEach(el => el.classList.remove("active", "tuned"));
 }
 
@@ -654,7 +735,7 @@ function stop(){
   if (micStream) micStream.getTracks().forEach(t => t.stop());
   micStream = null; analyser = null; hpNode = null; lpNode = null;
   releaseWakeLock();
-  lastRms = 0; $("lvl").style.width = "0%";
+  lastRms = 0; lastLvl = "0"; $("lvl").style.transform = "scaleX(0)";
   $("start").textContent = "MULAI";
   $("start").classList.remove("on");
   $("status").className = "status";
@@ -686,7 +767,8 @@ function loop(){
   // indikator kekuatan sinyal (skala desibel supaya terasa alami)
   const pct = lastRms > 0
     ? Math.max(0, Math.min(100, (20 * Math.log10(lastRms) + 62) / 62 * 100)) : 0;
-  $("lvl").style.width = pct.toFixed(0) + "%";
+  const lvlS = (pct / 100).toFixed(3);
+  if (lvlS !== lastLvl){ lastLvl = lvlS; $("lvl").style.transform = "scaleX(" + lvlS + ")"; }
 
   const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
   lastFrame = now;
@@ -720,8 +802,8 @@ function render(freq){
   const cents  = centsBetween(freq, best.freq);
   const inTune = Math.abs(cents) < 5;
   const close  = Math.abs(cents) < 15;
-  const color  = inTune ? "#7FE0A6" : close ? "#F0A960" : "#F58A7E";
-  const glow   = inTune ? "#3FB878" : close ? "#C97A2E" : "#C6534A";
+  const color  = inTune ? "#1E7A50" : close ? "#B4712A" : "#B23B26";
+  const glow   = inTune ? "rgba(30,122,80,.45)" : close ? "rgba(180,113,42,.42)" : "rgba(178,59,38,.40)";
 
   const nm = midiToName(best.midi);
   $("dTarget").textContent = "SENAR " + best.label;
@@ -731,14 +813,14 @@ function render(freq){
   $("dCents").textContent  = inTune ? "PAS ✓"
     : Math.abs(cents) > 99 ? (cents < 0 ? "JAUH DI BAWAH" : "JAUH DI ATAS")
     : (cents < 0 ? "RENDAH " : "TINGGI ") + (cents > 0 ? "+" : "") + cents.toFixed(0) + " CENT";
-  $("dCents").style.color = inTune ? "#7FE0A6" : "rgba(228,236,242,.72)";
+  $("dCents").style.color = inTune ? "#1E7A50" : "rgba(43,33,27,.70)";
 
   $("needle").style.background = color;
   $("needle").style.boxShadow  = "0 0 12px 3px " + glow;
   wantPct = centsToPct(cents);
   strobeSpeed = Math.max(-260, Math.min(260, cents * 5));
-  $("strobeBand1").style.setProperty("--sc", inTune ? "#B6F0CC" : close ? "#F0D8B4" : "#D7DEE4");
-  $("strobeBand2").style.setProperty("--sc", inTune ? "#79C79A" : close ? "#C6A277" : "#8FA6B9");
+  $("strobeBand1").style.setProperty("--sc", inTune ? "#2E8B62" : close ? "#B4712A" : "#6B5A4A");
+  $("strobeBand2").style.setProperty("--sc", inTune ? "#1F5E4E" : close ? "#8A5B18" : "#9A8878");
 
   document.querySelectorAll(".sstr").forEach(el => {
     const s = strings[+el.dataset.i];
