@@ -155,7 +155,9 @@
   .fb{display:block; width:100%; height:auto}
   .fstr{cursor:pointer}
   .fstr .hit{fill:transparent}
-  .fstr .ln{stroke:#E8DCC4; stroke-linecap:round; transition:stroke .15s,stroke-width .15s}
+  .fstr .lnb{stroke:rgba(0,0,0,.7); stroke-linecap:round; fill:none}
+  .fstr .lnw{stroke:rgba(255,255,255,.32); stroke-linecap:round; fill:none}
+  .fstr .ln{stroke:#EFE4CE; stroke-linecap:round; transition:stroke .15s,stroke-width .15s}
   .fstr .lb{fill:var(--ink); font:700 12.5px var(--sans); text-anchor:middle;
     paint-order:stroke; stroke:rgba(10,8,6,.75); stroke-width:2.6px;
     stroke-linejoin:round; transition:fill .15s}
@@ -175,9 +177,11 @@
   .hs{display:block; width:100%; height:auto}
   .hstr{cursor:pointer}
   .hstr .hit{fill:transparent}
-  .hstr .ln{stroke:#E8DCC4; stroke-linecap:round; transition:stroke .15s}
-  .hstr .pb{fill:#C9A96A; stroke:rgba(0,0,0,.45); stroke-width:.7; transition:fill .15s}
-  .hstr .peg{fill:#E0C48C; stroke:rgba(0,0,0,.5); stroke-width:.8; transition:fill .15s}
+  .hstr .lnb{stroke:rgba(0,0,0,.65); stroke-linecap:round; fill:none}
+  .hstr .lnw{stroke:rgba(255,255,255,.35); stroke-linecap:round; fill:none}
+  .hstr .ln{stroke:#EFE4CE; stroke-linecap:round; transition:stroke .15s}
+  .hstr .pb{fill:url(#brass); stroke:rgba(0,0,0,.55); stroke-width:.7; transition:fill .15s}
+  .hstr .peg{fill:url(#brassR); stroke:rgba(0,0,0,.6); stroke-width:.8; transition:fill .15s}
   .hstr .lb{fill:var(--ink); font:700 12.5px var(--sans); text-anchor:middle;
     paint-order:stroke; stroke:rgba(10,8,6,.75); stroke-width:2.6px;
     stroke-linejoin:round; transition:fill .15s}
@@ -586,6 +590,54 @@ function buildStrings(){
   });
 }
 
+/* Bahan bersama untuk gambar alat: gradasi kayu, kuningan, tulang,
+   serat kayu prosedural, dan bayangan jatuh. Statis, jadi tidak membebani. */
+function svgDefs(){
+  return `
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#241812"/><stop offset=".18" stop-color="#3E2C1A"/>
+      <stop offset=".42" stop-color="#5C4023"/><stop offset=".62" stop-color="#48331F"/>
+      <stop offset=".85" stop-color="#2C1E12"/><stop offset="1" stop-color="#1A110A"/>
+    </linearGradient>
+    <linearGradient id="wood2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1B1209"/><stop offset=".30" stop-color="#332314"/>
+      <stop offset=".55" stop-color="#452F1B"/><stop offset=".80" stop-color="#2A1D11"/>
+      <stop offset="1" stop-color="#150E08"/>
+    </linearGradient>
+    <linearGradient id="ebony" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#120E0C"/><stop offset=".28" stop-color="#2C2422"/>
+      <stop offset=".52" stop-color="#3A302C"/><stop offset=".78" stop-color="#221B18"/>
+      <stop offset="1" stop-color="#0E0A09"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8A6524"/><stop offset=".22" stop-color="#F6E0A8"/>
+      <stop offset=".50" stop-color="#D2A85B"/><stop offset=".78" stop-color="#8C6626"/>
+      <stop offset="1" stop-color="#5E430F"/>
+    </linearGradient>
+    <radialGradient id="brassR" cx=".34" cy=".30" r=".85">
+      <stop offset="0" stop-color="#FFF3D2"/><stop offset=".38" stop-color="#E2BC72"/>
+      <stop offset=".74" stop-color="#9E7530"/><stop offset="1" stop-color="#5A3F12"/>
+    </radialGradient>
+    <linearGradient id="bone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF7E6"/><stop offset=".45" stop-color="#E4D8C2"/>
+      <stop offset="1" stop-color="#A99B85"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFE9C0" stop-opacity="0"/>
+      <stop offset=".38" stop-color="#FFE9C0" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#FFE9C0" stop-opacity=".05"/>
+      <stop offset="1" stop-color="#FFE9C0" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="grain" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.4 0.03" numOctaves="5" seed="9" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0.09  0 0 0 0 0.06  0 0 0 0 0.03  0 0 0 0.55 0"/>
+    </filter>
+    <filter id="drop" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2.6" flood-color="#000" flood-opacity=".65"/>
+    </filter>`;
+}
+
 /* Papan jari biola: senar melengkung menyebar dari nut yang sempit
    ke arah bawah yang melebar, seperti fingerboard sungguhan. */
 function buildFingerboard(){
@@ -598,13 +650,18 @@ function buildFingerboard(){
     const x1 = tx(i), x2 = bx(i);
     const w  = 1.0 + (n - 1 - i) * 0.55;                 // senar bawah lebih tebal
     const c1 = x1 + (x2 - x1) * .12, c2 = x1 + (x2 - x1) * .64;
-    const ln = `M${x1.toFixed(1)} 20 C${c1.toFixed(1)} 58 ${c2.toFixed(1)} 92 ${x2.toFixed(1)} 116`;
+    const d  = `M${x1.toFixed(1)} 20 C${c1.toFixed(1)} 58 ${c2.toFixed(1)} 92 ${x2.toFixed(1)} 116`;
     const hit = `M${(x1 - 6).toFixed(1)} 8 L${(x1 + 6).toFixed(1)} 8 ` +
                 `L${(x2 + 22).toFixed(1)} 150 L${(x2 - 22).toFixed(1)} 150 Z`;
+    const wound = i < 2
+      ? `<path class="lnw" d="${d}" stroke-width="${(w * .55).toFixed(2)}"
+               stroke-dasharray="0.6 ${(1.1 + w * .35).toFixed(2)}"/>` : "";
     return `<g class="fstr sstr" data-i="${i}" tabindex="0" role="button"
                aria-label="Nada acuan ${s.label}">
       <path class="hit" d="${hit}"/>
-      <path class="ln" d="${ln}" fill="none" stroke-width="${w.toFixed(2)}"/>
+      <path class="lnb" d="${d}" stroke-width="${(w + 1.4).toFixed(2)}"/>
+      <path class="ln"  d="${d}" fill="none" stroke-width="${w.toFixed(2)}"/>
+      ${wound}
       <text class="lb" x="${x2.toFixed(1)}" y="134">${s.label}</text>
       <text class="hz" x="${x2.toFixed(1)}" y="146">${s.freq.toFixed(1)}</text>
       <text class="lk" x="${x1.toFixed(1)}" y="6">●</text>
@@ -614,16 +671,24 @@ function buildFingerboard(){
   $("strings").className = "";
   $("strings").innerHTML =
    `<svg class="fb" viewBox="0 0 340 152" role="group" aria-label="Papan jari">
-      <defs>
-        <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#2A1E15"/><stop offset=".40" stop-color="#41301F"/>
-          <stop offset=".68" stop-color="#2E2116"/><stop offset="1" stop-color="#191009"/>
-        </linearGradient>
+      <defs>${svgDefs()}
+        <clipPath id="cFb"><path d="M140 16 L200 16 L268 120 L72 120 Z"/></clipPath>
       </defs>
-      <path d="M140 16 L200 16 L268 120 L72 120 Z" fill="url(#wood)"
-            stroke="rgba(224,174,92,.28)" stroke-width="1"/>
-      <rect x="136" y="9" width="68" height="7.5" rx="3"
-            fill="#D9CFC0" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>
+      <g filter="url(#drop)">
+        <path d="M140 16 L200 16 L268 120 L72 120 Z" fill="url(#ebony)"/>
+      </g>
+      <g clip-path="url(#cFb)">
+        <rect x="60" y="10" width="220" height="116" filter="url(#grain)" opacity=".55"/>
+        <rect x="60" y="10" width="220" height="116" fill="url(#sheen)"/>
+        <path d="M146 16 L196 16 L262 120 L80 120 Z" fill="none"
+              stroke="#FFE9C6" stroke-opacity=".10" stroke-width="1.6"/>
+      </g>
+      <path d="M140 16 L200 16 L268 120 L72 120 Z" fill="none"
+            stroke="rgba(224,174,92,.34)" stroke-width="1"/>
+      <g filter="url(#drop)">
+        <rect x="136" y="9" width="68" height="7.5" rx="3" fill="url(#bone)"/>
+        <rect x="138" y="10.2" width="64" height="1.5" rx=".7" fill="#FFFDF6" opacity=".65"/>
+      </g>
       ${parts}
     </svg>`;
 }
@@ -653,46 +718,79 @@ function buildHeadstock(){
     const p = pegs[i], nx = nutX(i), bx = botX(i);
     const w  = 1.0 + (n - 1 - i) * 0.45;               // senar bawah lebih tebal
     const cn = p.side < 0 ? p.bx + 36 : p.bx - 16;     // batang penghubung pasak
-    const ln = `M${p.px} ${p.py.toFixed(1)} C${p.px} ${(p.py + 14).toFixed(1)} ` +
+    const d  = `M${p.px} ${p.py.toFixed(1)} C${p.px} ${(p.py + 14).toFixed(1)} ` +
                `${nx.toFixed(1)} 66 ${nx.toFixed(1)} 84 L${bx.toFixed(1)} 168`;
+    const wound = i < Math.min(3, n - 1)
+      ? `<path class="lnw" d="${d}" stroke-width="${(w * .55).toFixed(2)}"
+               stroke-dasharray="0.6 ${(1.1 + w * .35).toFixed(2)}"/>` : "";
     return `<g class="hstr sstr" data-i="${i}" tabindex="0" role="button"
                aria-label="Nada acuan ${s.label}">
       <rect class="hit" x="${p.side < 0 ? 96 : 224}" y="${(p.py - 12).toFixed(1)}" width="80" height="24"/>
       <rect class="hit" x="${(bx - 28).toFixed(1)}" y="158" width="56" height="42"/>
-      <path class="ln" d="${ln}" fill="none" stroke-width="${w.toFixed(2)}"/>
-      <rect class="pb" x="${cn}" y="${(p.py - 2).toFixed(1)}" width="16" height="4" rx="2"/>
-      <rect class="pb" x="${p.bx}" y="${(p.py - 5).toFixed(1)}" width="36" height="10" rx="3"/>
-      <circle class="peg" cx="${p.px}" cy="${p.py.toFixed(1)}" r="5"/>
+      <path class="lnb" d="${d}" stroke-width="${(w + 1.4).toFixed(2)}"/>
+      <path class="ln"  d="${d}" fill="none" stroke-width="${w.toFixed(2)}"/>
+      ${wound}
+      <g filter="url(#drop)">
+        <rect class="pb" x="${cn}" y="${(p.py - 2).toFixed(1)}" width="16" height="4" rx="2"/>
+        <rect class="pb" x="${p.bx}" y="${(p.py - 5).toFixed(1)}" width="36" height="10" rx="3.5"/>
+        <rect x="${p.bx + 3}" y="${(p.py - 3.4).toFixed(1)}" width="30" height="1.6" rx=".8"
+              fill="#FFF6DE" opacity=".45"/>
+        <circle class="peg" cx="${p.px}" cy="${p.py.toFixed(1)}" r="5.4"/>
+        <circle cx="${(p.px - 1.6).toFixed(1)}" cy="${(p.py - 1.8).toFixed(1)}" r="1.5"
+                fill="#FFF8E4" opacity=".75"/>
+      </g>
       <text class="lb" x="${bx.toFixed(1)}" y="186">${s.label}</text>
       <text class="hz" x="${bx.toFixed(1)}" y="196">${s.freq.toFixed(1)}</text>
       <text class="lk" x="${p.px}" y="${(p.py - 9).toFixed(1)}">●</text>
     </g>`;
   }).join("");
 
+  const frets = [0.30, 0.55, 0.78, 0.96].map(t => {
+    const y  = 84 + (168 - 84) * t;
+    const xl = 142 - (142 - 70) * t, xr = 258 + (330 - 258) * t;
+    return `<line x1="${xl.toFixed(1)}" y1="${y.toFixed(1)}" x2="${xr.toFixed(1)}" y2="${y.toFixed(1)}"
+                  stroke="url(#brass)" stroke-width="${(1 + t).toFixed(2)}" opacity=".55"/>`;
+  }).join("");
+
   $("strings").className = "";
   $("strings").innerHTML =
    `<svg class="hs" viewBox="0 0 400 200" role="group"
          aria-label="Kepala ${INSTRUMENTS[instrument].label}">
-      <defs>
-        <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#3B2A1B"/><stop offset=".40" stop-color="#5A4229"/>
-          <stop offset=".68" stop-color="#42301E"/><stop offset="1" stop-color="#251A10"/>
-        </linearGradient>
-        <linearGradient id="wood2" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#312417"/><stop offset=".45" stop-color="#4E3925"/>
-          <stop offset="1" stop-color="#1F160E"/>
-        </linearGradient>
+      <defs>${svgDefs()}
+        <clipPath id="cHead"><path d="M136 6 L264 6 L258 78 L142 78 Z"/></clipPath>
+        <clipPath id="cNeck"><path d="M142 84 L258 84 L330 168 L70 168 Z"/></clipPath>
       </defs>
-      <path d="M142 84 L258 84 L330 168 L70 168 Z" fill="url(#wood2)"
-            stroke="rgba(224,174,92,.32)" stroke-width="1"/>
-      <path d="M136 6 L264 6 L258 78 L142 78 Z" fill="url(#wood)"
-            stroke="rgba(224,174,92,.45)" stroke-width="1.2"/>
-      <g fill="none" stroke="#E0AE5C" stroke-width="1.1" opacity=".45">
+
+      <g filter="url(#drop)">
+        <path d="M142 84 L258 84 L330 168 L70 168 Z" fill="url(#wood2)"/>
+        <path d="M136 6 L264 6 L258 78 L142 78 Z" fill="url(#wood)"/>
+      </g>
+      <g clip-path="url(#cNeck)">
+        <rect x="60" y="80" width="280" height="92" filter="url(#grain)" opacity=".8"/>
+        ${frets}
+        <rect x="60" y="80" width="280" height="92" fill="url(#sheen)"/>
+      </g>
+      <g clip-path="url(#cHead)">
+        <rect x="130" y="0" width="140" height="84" filter="url(#grain)" opacity=".85"/>
+        <rect x="130" y="0" width="140" height="84" fill="url(#sheen)"/>
+        <path d="M140 8 L260 8 L255 76 L145 76 Z" fill="none"
+              stroke="#FFE3B0" stroke-opacity=".14" stroke-width="1.6"/>
+      </g>
+      <path d="M136 6 L264 6 L258 78 L142 78 Z" fill="none"
+            stroke="rgba(224,174,92,.5)" stroke-width="1.2"/>
+
+      <g fill="none" stroke="#3A2712" stroke-width="1.4" opacity=".8">
+        <path d="M200 23 L223 45 L200 67 L177 45 Z"/>
+      </g>
+      <g fill="none" stroke="url(#brass)" stroke-width="1.3">
         <path d="M200 22 L222 44 L200 66 L178 44 Z"/>
         <path d="M200 34 L210 44 L200 54 L190 44 Z"/>
       </g>
-      <rect x="138" y="76" width="124" height="8" rx="3"
-            fill="#D9CFC0" stroke="rgba(0,0,0,.45)" stroke-width=".8"/>
+
+      <g filter="url(#drop)">
+        <rect x="138" y="76" width="124" height="8" rx="3" fill="url(#bone)"/>
+        <rect x="140" y="77.2" width="120" height="1.6" rx=".8" fill="#FFFDF6" opacity=".65"/>
+      </g>
       ${parts}
     </svg>`;
 }
