@@ -20,13 +20,14 @@
     --redlit:#E0454A; --green:#72BC8F; --blue:#5E9FE8; --redx:#E97366;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  html,body{height:100%}
+  html{height:100%}
   body{
     background:radial-gradient(120% 80% at 50% 10%, #232120 0%, #171614 52%, #0D0C0B 100%);
     color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.5;
     -webkit-font-smoothing:antialiased;
+    min-height:100%;
     display:flex; justify-content:center; align-items:center;
-    padding:20px 14px calc(20px + env(safe-area-inset-bottom));
+    padding:clamp(8px,1.6vh,20px) 14px calc(clamp(8px,1.6vh,20px) + env(safe-area-inset-bottom));
   }
   body::before{ /* butiran kulit */
     content:""; position:fixed; inset:0; pointer-events:none; opacity:.5; z-index:0;
@@ -34,9 +35,11 @@
     mix-blend-mode:overlay;
   }
   .app{position:relative; z-index:1; width:100%; max-width:420px;
-    display:flex; flex-direction:column; align-items:center; gap:14px}
+    display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.4vh,14px)}
 
-  .emblem{width:100%; max-width:400px; filter:drop-shadow(0 14px 26px rgba(0,0,0,.65))}
+  /* Lambang ikut tinggi layar supaya seluruh panel tetap muat di HP. */
+  .emblem{width:min(100%, 400px, 38vh); filter:drop-shadow(0 14px 26px rgba(0,0,0,.65))}
+  @media (max-height:760px){ .emblem{width:min(100%, 400px, 34vh)} }
   .emblem svg{display:block; width:100%; height:auto}
   #needleG{transition:transform .1s linear}
   @media (prefers-reduced-motion:reduce){#needleG{transition:none}}
