@@ -1,5 +1,7 @@
-/* Pekerja layanan Chelebes Tuner — simpan aplikasi agar bisa dipakai offline. */
-const CACHE = "chelebes-tuner-v1";
+/* Pekerja layanan Chelebes Tuner — simpan aplikasi agar bisa dipakai offline.
+   Naikkan angka VERSI setiap kali berkas diperbarui supaya simpanan lama dibuang. */
+const VERSI = "v4";
+const CACHE = "chelebes-tuner-" + VERSI;
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,10 +27,24 @@ self.addEventListener("activate", e => {
   );
 });
 
-/* Ambil dari simpanan dulu supaya cepat, lalu perbarui diam-diam di belakang. */
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
+
+  /* Halaman utama: ambil dari internet dulu supaya versi terbaru langsung terpakai,
+     kalau sedang offline baru pakai simpanan. */
+  if (req.mode === "navigate"){
+    e.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put("./index.html", copy));
+        return res;
+      }).catch(() => caches.match("./index.html").then(r => r || caches.match("./")))
+    );
+    return;
+  }
+
+  /* Gambar dan berkas lain: pakai simpanan dulu supaya cepat, perbarui diam-diam. */
   e.respondWith(
     caches.match(req).then(hit => {
       const net = fetch(req).then(res => {

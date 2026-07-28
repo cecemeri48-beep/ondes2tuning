@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#141312">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Chelebes">
+<meta name="apple-mobile-web-app-title" content="The Onde2&#8217;S">
 <meta name="description" content="Tuner digital gitar, biola, bass, dan ukulele dengan mode jarum dan strobo.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" sizes="192x192">
@@ -37,12 +37,64 @@
   .app{position:relative; z-index:1; width:100%; max-width:420px;
     display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.4vh,14px)}
 
-  /* Lambang ikut tinggi layar supaya seluruh panel tetap muat di HP. */
-  .emblem{width:min(100%, 400px, 38vh); filter:drop-shadow(0 14px 26px rgba(0,0,0,.65))}
-  @media (max-height:760px){ .emblem{width:min(100%, 400px, 34vh)} }
-  .emblem svg{display:block; width:100%; height:auto}
-  #needleG{transition:transform .1s linear}
-  @media (prefers-reduced-motion:reduce){#needleG{transition:none}}
+  /* ---- kepala merek ---- */
+  .brand{display:flex; align-items:center; gap:10px; width:100%; padding:0 2px}
+  .brand .mark{width:38px; height:38px; flex:none; display:block;
+    filter:drop-shadow(0 2px 7px rgba(0,0,0,.55))}
+  .brand h1{font:700 15.5px/1.2 var(--sans); color:var(--text)}
+  .brand p{font:600 9.5px/1.5 var(--sans); letter-spacing:.17em; text-transform:uppercase;
+    color:var(--text3)}
+
+  /* ---- layar utama: kotak, angka besar, latar pegunungan ---- */
+  .screen{position:relative; width:100%; border-radius:16px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.14); padding:12px 12px 10px;
+    display:flex; flex-direction:column; gap:9px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 10px 26px rgba(0,0,0,.55)}
+  .scene{position:absolute; inset:0; width:100%; height:100%; z-index:0}
+  .sread{position:relative; z-index:1; text-align:center; isolation:isolate}
+  .sread::before{content:""; position:absolute; inset:-10px -12px -6px; z-index:-1;
+    background:radial-gradient(72% 108% at 50% 48%,
+      rgba(4,10,14,.78) 0%, rgba(4,10,14,.52) 52%, rgba(4,10,14,0) 78%)}
+  .starget{font:700 10.5px/1.4 var(--sans); letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(228,236,242,.72)}
+  .snote{font:700 clamp(52px,15vw,74px)/1.02 var(--sans); letter-spacing:-.02em;
+    color:#EAF7FF; margin:2px 0; font-variant-numeric:tabular-nums;
+    text-shadow:0 2px 20px rgba(0,0,0,.85), 0 0 6px rgba(0,0,0,.5); transition:color .12s}
+  .shz{font:500 11.5px/1.35 var(--sans); color:rgba(228,236,242,.66);
+    font-variant-numeric:tabular-nums}
+  .scents{font:700 12px/1.45 var(--sans); letter-spacing:.06em;
+    color:rgba(228,236,242,.72); min-height:18px}
+
+  /* ---- bilah cent mendatar ---- */
+  .gauge{position:relative; z-index:1; height:58px; border-radius:10px;
+    background:rgba(6,14,18,.42); border:1px solid rgba(255,255,255,.10)}
+  .gzone{position:absolute; left:50%; top:0; bottom:17px; width:9.2%;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg,rgba(114,188,143,.30),rgba(114,188,143,.06));
+    border-left:1px solid rgba(114,188,143,.40);
+    border-right:1px solid rgba(114,188,143,.40)}
+  .gticks{position:absolute; left:4%; right:4%; top:0; bottom:17px}
+  .gticks i{position:absolute; bottom:0; width:1.4px; border-radius:1px;
+    transform:translateX(-50%); background:rgba(228,236,242,.42)}
+  .gticks i.mj{width:2.2px; background:rgba(228,236,242,.85)}
+  .gmark{position:absolute; left:50%; top:6px; bottom:19px; width:0; z-index:2;
+    transition:left .09s linear}
+  .gmark i{position:absolute; left:50%; top:0; bottom:0; width:4px; border-radius:3px;
+    transform:translateX(-50%); background:#EAF7FF;
+    box-shadow:0 0 12px 3px rgba(143,211,244,.75)}
+  .glabels{position:absolute; left:4%; right:4%; bottom:3px; display:flex;
+    justify-content:space-between; font:600 9.5px/1 var(--sans); letter-spacing:.08em;
+    color:rgba(228,236,242,.50); font-variant-numeric:tabular-nums}
+  @media (prefers-reduced-motion:reduce){ .gmark{transition:none} }
+
+  /* ---- mode strobo ---- */
+  .strobe{position:relative; z-index:1; display:none; flex-direction:column; gap:6px}
+  .sband{height:27px; border-radius:9px; border:1px solid rgba(255,255,255,.10);
+    background-color:rgba(6,14,18,.62);
+    background-image:repeating-linear-gradient(90deg,
+      var(--sc,#D7DEE4) 0 14px, rgba(0,0,0,0) 14px 28px)}
+  .sband.b2{background-image:repeating-linear-gradient(90deg,
+      var(--sc,#8FA6B9) 0 10px, rgba(0,0,0,0) 10px 20px)}
 
   .modes{display:flex; gap:4px; padding:4px; border-radius:11px;
     background:rgba(0,0,0,.34); border:1px solid var(--line2)}
@@ -114,28 +166,6 @@
     background:linear-gradient(90deg,#3E6B53,#72BC8F 55%,#DE9255);
     transition:width .09s linear}
 
-  /* ---- riwayat tuning ---- */
-  .hist{width:100%; background:var(--panel); border:1px solid var(--line);
-    border-radius:11px; padding:9px 11px}
-  .hist summary{cursor:pointer; list-style:none; display:flex; align-items:center;
-    justify-content:space-between; gap:8px; font:600 12px/1.4 var(--sans); color:var(--text2)}
-  .hist summary::-webkit-details-marker{display:none}
-  .hist summary::after{content:"▾"; color:var(--text3); font-size:11px}
-  .hist[open] summary::after{content:"▴"}
-  .hist ol{margin:9px 0 0; padding:0; list-style:none;
-    display:flex; flex-direction:column; gap:4px}
-  .hist li{display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:6px 9px; border-radius:7px; font-variant-numeric:tabular-nums;
-    background:rgba(114,188,143,.10); border:1px solid rgba(114,188,143,.22)}
-  .hist li b{font:600 12.5px/1 var(--sans); color:var(--green)}
-  .hist li span{font-size:10.5px; color:var(--text3)}
-  .hist .empty{display:block; padding:10px 0 2px; text-align:center;
-    font-size:11.5px; color:var(--text3); background:none; border:0}
-  .histclr{margin-top:8px; width:100%; height:30px; border-radius:7px; cursor:pointer;
-    background:rgba(255,255,255,.05); border:1px solid var(--line2);
-    color:var(--text3); font:500 11.5px/1 var(--sans); transition:background .15s,color .15s}
-  .histclr:hover{background:rgba(255,255,255,.1); color:var(--text)}
-
   .row{display:flex; gap:8px; width:100%; align-items:center}
   .start{flex:1; height:46px; border-radius:9px; cursor:pointer;
     border:1px solid rgba(255,255,255,.28); font:600 15px/1 var(--sans); letter-spacing:.02em;
@@ -162,8 +192,7 @@
 
   .modes button:focus-visible,
   .tabs button:focus-visible,.calib button:focus-visible,select:focus-visible,
-  .chip:focus-visible,.start:focus-visible,.histclr:focus-visible,
-  .hist summary:focus-visible,.fstr:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+  .chip:focus-visible,.start:focus-visible,.fstr:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
 
   @media (max-width:400px){ .chip{height:46px} .chip .n{font-size:12.5px} }
 </style>
@@ -172,178 +201,70 @@
 <div class="app">
 
   <!-- ================= EMBLEM ================= -->
-  <div class="emblem">
-  <svg viewBox="0 0 400 400" role="img" aria-label="The Onde-Onde's Chelebes Nature Pitch Calibrator">
-    <defs>
-      <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0"   stop-color="#FAFBFB"/><stop offset=".14" stop-color="#B4B9BD"/>
-        <stop offset=".30" stop-color="#EFF1F2"/><stop offset=".47" stop-color="#84898E"/>
-        <stop offset=".56" stop-color="#C9CDD0"/><stop offset=".74" stop-color="#E8EAEC"/>
-        <stop offset=".88" stop-color="#8F9498"/><stop offset="1"   stop-color="#DDE0E2"/>
-      </linearGradient>
-      <linearGradient id="chromeRim" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#7C8186"/>
-        <stop offset=".55" stop-color="#D3D7DA"/><stop offset="1" stop-color="#6E7377"/>
-      </linearGradient>
-      <linearGradient id="redRim" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#E9585C"/><stop offset=".42" stop-color="#B72127"/>
-        <stop offset=".58" stop-color="#D93A3F"/><stop offset="1" stop-color="#8B171C"/>
-      </linearGradient>
-      <linearGradient id="redTxt" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#F4787B"/><stop offset=".5" stop-color="#D0343A"/>
-        <stop offset="1" stop-color="#9C1D22"/>
-      </linearGradient>
-      <linearGradient id="brownTxt" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#C08561"/><stop offset=".5" stop-color="#8A563A"/>
-        <stop offset="1" stop-color="#5C3623"/>
-      </linearGradient>
-      <radialGradient id="sky" cx=".5" cy=".22" r=".95">
-        <stop offset="0" stop-color="#33506E"/><stop offset=".55" stop-color="#22374E"/>
-        <stop offset="1" stop-color="#152232"/>
-      </radialGradient>
-      <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#3C5A44"/><stop offset="1" stop-color="#1C2E25"/>
-      </linearGradient>
-      <radialGradient id="scrim" cx=".5" cy=".5" r=".5">
-        <stop offset="0"   stop-color="#070C12" stop-opacity=".72"/>
-        <stop offset=".62" stop-color="#070C12" stop-opacity=".52"/>
-        <stop offset="1"   stop-color="#070C12" stop-opacity="0"/>
-      </radialGradient>
+  <header class="brand">
+    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="19" fill="#16241D" stroke="#4C7F63" stroke-width="1.4"/>
+      <circle cx="29" cy="11.5" r="2.6" fill="#E8C88A" opacity=".9"/>
+      <path d="M5 28 L15 13 L21 22 L26 16 L35 28 Z" fill="#2E5C46"/>
+      <path d="M15 13 L18.4 18.1 L15 19.6 L11.6 18.1 Z" fill="#DCE7E1"/>
+      <path d="M5 30.5 Q12.5 28.2 20 30.5 T35 30.5" fill="none" stroke="#5E9FE8"
+            stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+    </svg>
+    <div class="btxt">
+      <h1>The Onde-Onde&#8217;s Project</h1>
+      <p>Nature Pitch Calibrator</p>
+    </div>
+  </header>
 
-      <clipPath id="dialClip"><circle cx="200" cy="200" r="122"/></clipPath>
-
-      <filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
-        <feGaussianBlur stdDeviation="3.5" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-      <filter id="softglow" x="-90%" y="-90%" width="280%" height="280%">
-        <feGaussianBlur stdDeviation="7"/>
-      </filter>
-
-      <path id="arcTop"   d="M 48,200 A 152,152 0 0 1 352,200"/>
-      <path id="arcBot"   d="M 24,200 A 176,176 0 0 0 376,200"/>
-      <path id="arcSmall" d="M 60,200 A 140,140 0 0 0 340,200"/>
-    </defs>
-
-    <!-- pelat -->
-    <circle cx="200" cy="200" r="197" fill="url(#redRim)"/>
-    <circle cx="200" cy="200" r="190" fill="url(#chrome)"/>
-    <circle cx="200" cy="200" r="190" fill="none" stroke="rgba(0,0,0,.30)" stroke-width="1.5"/>
-
-    <!-- etsa gunung &amp; sungai -->
-    <g stroke="rgba(40,45,52,.42)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 216 l16-20 10 12 12-16 14 24"/><path d="M330 216 l16-20 10 12 12-16 14 24"/>
-    </g>
-    <g stroke="rgba(74,112,150,.50)" stroke-width="3" fill="none" stroke-linecap="round">
-      <path d="M14 178 q22 -12 44 0 t44 0"/><path d="M298 178 q22 -12 44 0 t44 0"/>
-    </g>
-
-    <!-- teks lingkar -->
-    <g font-family="Georgia, 'Times New Roman', serif" font-weight="700" text-anchor="middle">
-      <text font-size="33" letter-spacing="1.5" fill="rgba(20,18,17,.55)">
-        <textPath href="#arcTop" startOffset="50%" dy="2.5">THE ONDE-ONDE&#8217;S</textPath></text>
-      <text font-size="33" letter-spacing="1.5" fill="url(#redTxt)"
-            stroke="rgba(255,255,255,.35)" stroke-width=".6" paint-order="stroke">
-        <textPath href="#arcTop" startOffset="50%">THE ONDE-ONDE&#8217;S</textPath></text>
-
-      <text font-size="36" letter-spacing="2" fill="rgba(20,18,17,.55)">
-        <textPath href="#arcBot" startOffset="50%" dy="2.5">CHELEBES</textPath></text>
-      <text font-size="36" letter-spacing="2" fill="url(#brownTxt)"
-            stroke="rgba(255,255,255,.32)" stroke-width=".6" paint-order="stroke">
-        <textPath href="#arcBot" startOffset="50%">CHELEBES</textPath></text>
-
-      <text font-size="11" letter-spacing="1.6" font-weight="600" fill="rgba(35,32,30,.68)">
-        <textPath href="#arcSmall" startOffset="50%">NATURE PITCH CALIBRATOR</textPath></text>
-    </g>
-
-    <!-- ================= DIAL ================= -->
-    <g clip-path="url(#dialClip)">
-      <circle cx="200" cy="200" r="122" fill="url(#sky)"/>
-
-      <!-- pegunungan -->
-      <path d="M78 218 L112 162 L136 194 L166 136 L200 190 L232 144 L262 192 L292 160 L322 218 Z"
-            fill="#2B4059" opacity=".8"/>
-      <path d="M166 136 L153 161 L180 161 Z M232 144 L221 165 L246 165 Z M112 162 L103 177 L124 177 Z"
-            fill="#C9D8E4" opacity=".3"/>
-      <path d="M78 236 L118 196 L150 220 L188 184 L224 222 L258 192 L292 224 L322 202 L322 236 Z"
-            fill="#22364C" opacity=".85"/>
-      <path d="M78 232 Q200 206 322 232 L322 322 L78 322 Z" fill="url(#field)"/>
-      <path d="M78 256 Q200 234 322 256" fill="none" stroke="rgba(150,200,170,.14)" stroke-width="2"/>
-
-      <!-- peredam kontras di balik angka -->
-      <ellipse cx="200" cy="262" rx="112" ry="78" fill="url(#scrim)"/>
-
-      <g id="gaugeGroup">
-      <!-- ikon gitar &amp; biola (di atas busur, tidak terpotong) -->
-      <g id="icoGuitar" transform="translate(150,120) scale(.58)">
-        <g fill="none" stroke="#E3E9ED" stroke-width="3.4" stroke-linecap="round">
-          <path d="M0 -32 L0 -8"/><path d="M-5 -34 h10"/>
-        </g>
-        <path d="M0 -8 c-13 0 -18 9 -18 17 c0 7 4 11 4 16 c0 8 -6 12 -6 20 c0 11 9 19 20 19
-                 c11 0 20 -8 20 -19 c0 -8 -6 -12 -6 -20 c0 -5 4 -9 4 -16 c0 -8 -5 -17 -18 -17 Z"
-              fill="#CFD6DC" stroke="#7E868D" stroke-width="2"/>
-        <circle cx="0" cy="34" r="6.5" fill="#26333F"/>
+  <div class="screen">
+    <svg class="scene" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0E1C28"/><stop offset=".55" stop-color="#153040"/>
+          <stop offset="1" stop-color="#173B36"/>
+        </linearGradient>
+        <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#33714F"/><stop offset="1" stop-color="#173821"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="240" fill="url(#sky)"/>
+      <circle cx="332" cy="40" r="15" fill="#EFE4C8" opacity=".38"/>
+      <g fill="#FFFFFF" opacity=".7">
+        <circle cx="40" cy="30" r="1.2"/><circle cx="96" cy="54" r="1"/>
+        <circle cx="150" cy="26" r="1.3"/><circle cx="212" cy="46" r="1"/>
+        <circle cx="268" cy="24" r="1.2"/><circle cx="366" cy="74" r="1"/>
       </g>
-      <g id="icoViolin" transform="translate(250,120) scale(.58)">
-        <g fill="none" stroke="#E3E9ED" stroke-width="3.4" stroke-linecap="round">
-          <path d="M0 -34 L0 -10"/><path d="M0 -34 c-7 0 -9 6 -4 8"/>
-        </g>
-        <path d="M0 -10 c-11 0 -15 8 -15 14 c0 6 4 9 4 13 c0 7 -6 10 -6 18 c0 10 8 17 17 17
-                 c9 0 17 -7 17 -17 c0 -8 -6 -11 -6 -18 c0 -4 4 -7 4 -13 c0 -6 -4 -14 -15 -14 Z"
-              fill="#CFD6DC" stroke="#7E868D" stroke-width="2"/>
-        <g stroke="#38454F" stroke-width="2.2" fill="none" stroke-linecap="round">
-          <path d="M-7 28 q-3 8 0 14"/><path d="M7 28 q3 8 0 14"/>
-        </g>
-      </g>
+      <path d="M0 170 L64 104 L108 142 L150 96 L206 170 Z" fill="#33505F"/>
+      <path d="M150 96 L166 116 L150 124 L134 116 Z" fill="#E4EDF2" opacity=".85"/>
+      <path d="M64 104 L76 120 L64 126 L52 120 Z" fill="#E4EDF2" opacity=".7"/>
+      <path d="M168 170 L232 110 L290 152 L336 118 L400 170 Z" fill="#26404E"/>
+      <path d="M232 110 L246 128 L232 135 L218 128 Z" fill="#E4EDF2" opacity=".68"/>
+      <rect y="166" width="400" height="74" fill="url(#field)"/>
+      <path d="M0 178 Q100 168 200 180 T400 174" fill="none" stroke="#5E9FE8"
+            stroke-width="2.6" opacity=".70"/>
+      <path d="M0 198 Q120 190 240 202 T400 196" fill="none" stroke="#5E9FE8"
+            stroke-width="1.8" opacity=".45"/>
+      <rect width="400" height="240" fill="rgba(6,12,16,.26)"/>
+    </svg>
 
-      <!-- skala cent -->
-      <path id="gaugeZone" d="" fill="rgba(114,188,143,.35)"/>
-      <path id="gaugeArc"  d="" fill="none" stroke="rgba(226,232,238,.55)" stroke-width="2"/>
-      <g id="gaugeTicks"></g>
-      <g id="gaugeLabels" font-family="Georgia, serif" font-size="11" font-weight="700"
-         fill="rgba(228,236,242,.70)" text-anchor="middle"></g>
+    <div class="sread">
+      <div class="starget" id="dTarget">—</div>
+      <div class="snote" id="dNote">—</div>
+      <div class="shz" id="dHz">tekan MULAI</div>
+      <div class="scents" id="dCents"></div>
+    </div>
 
-      <!-- jarum -->
-      <g id="needleG" transform="rotate(0 200 340)">
-        <polygon id="needleGlow" points="200,164 205,206 195,206" fill="#8FD3F4"
-                 opacity=".85" filter="url(#softglow)"/>
-        <polygon id="needle" points="200,166 203.4,204 196.6,204" fill="#EAF7FF" filter="url(#glow)"/>
-      </g>
-      </g><!-- /gaugeGroup -->
+    <div class="gauge" id="gaugeGroup">
+      <div class="gzone"></div>
+      <div class="gticks" id="gaugeTicks"></div>
+      <div class="gmark" id="needleG"><i id="needle"></i></div>
+      <div class="glabels"><span>−50</span><span>0</span><span>+50</span></div>
+    </div>
 
-      <!-- ============ MODE STROBO ============ -->
-      <g id="strobeGroup" style="display:none">
-        <circle cx="200" cy="200" r="103" fill="none" stroke="rgba(6,12,20,.80)" stroke-width="48"/>
-        <g id="strobeRot1">
-          <circle id="strobeBand1" cx="200" cy="200" r="112" fill="none" stroke="#D7DEE4"
-                  stroke-width="16" stroke-dasharray="14.66 14.66"/>
-        </g>
-        <g id="strobeRot2">
-          <circle id="strobeBand2" cx="200" cy="200" r="90" fill="none" stroke="#8FA6B9"
-                  stroke-width="13" stroke-dasharray="17.67 17.67"/>
-        </g>
-        <circle cx="200" cy="200" r="120.5" fill="none" stroke="rgba(0,0,0,.5)" stroke-width="4"/>
-        <circle cx="200" cy="200" r="82"    fill="none" stroke="rgba(0,0,0,.5)" stroke-width="4"/>
-      </g>
-
-      <g id="readout">
-      <!-- pembacaan -->
-      <text id="dTarget" x="200" y="219" text-anchor="middle" font-family="Georgia, serif"
-            font-size="10.5" font-weight="700" letter-spacing="2.4" fill="rgba(228,236,242,.62)">—</text>
-      <text id="dNote" x="200" y="263" text-anchor="middle" font-family="Georgia, serif"
-            font-size="50" font-weight="700" fill="#EAF7FF" filter="url(#glow)">—</text>
-      <text id="dHz" x="200" y="283" text-anchor="middle" font-family="Georgia, serif"
-            font-size="10.5" fill="rgba(228,236,242,.56)">tekan MULAI</text>
-      <text id="dCents" x="200" y="300" text-anchor="middle" font-family="Georgia, serif"
-            font-size="11" font-weight="700" letter-spacing=".6" fill="rgba(228,236,242,.72)"></text>
-      </g><!-- /readout -->
-
-      <circle cx="200" cy="200" r="122" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="6"/>
-    </g>
-    <circle cx="200" cy="200" r="126" fill="none" stroke="url(#chromeRim)" stroke-width="9"/>
-    <circle cx="200" cy="200" r="131" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
-    <circle cx="200" cy="200" r="121" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
-  </svg>
+    <div class="strobe" id="strobeGroup">
+      <div class="sband" id="strobeBand1"></div>
+      <div class="sband b2" id="strobeBand2"></div>
+    </div>
   </div>
 
   <div class="modes" role="tablist" aria-label="Mode tampilan" id="modes">
@@ -368,12 +289,6 @@
   </div>
 
   <p class="status" id="status">Ketuk senar untuk mendengar nada acuan.</p>
-
-  <details class="hist" id="hist">
-    <summary>Riwayat tuning · <span id="histCount">belum ada</span></summary>
-    <ol id="histList"></ol>
-    <button class="histclr" id="histClr">Hapus riwayat</button>
-  </details>
 </div>
 
 <script>
@@ -485,17 +400,12 @@ function detectPitch(buf, sr){
 }
 
 /* ============================================================
-   4. GEOMETRI DIAL
-   Poros jarum sengaja diletakkan di bawah dial (y=340) supaya
-   busur tampil lebar tapi bagian tengah tetap lega untuk angka.
+   4. GEOMETRI BILAH CENT
+   Mendatar: −50 cent di kiri, 0 di tengah, +50 di kanan.
+   SPAN 46 menyisakan tepi 4% supaya penanda tidak terpotong.
    ============================================================ */
-const PIVOT_X = 200, PIVOT_Y = 340;
-const R_OUT = 168, R_IN = 148, MAX_DEG = 42;
-const centsToDeg = c => c * (MAX_DEG / 50);
-const polar = (deg, r) => {
-  const a = (deg - 90) * Math.PI / 180;
-  return [PIVOT_X + r * Math.cos(a), PIVOT_Y + r * Math.sin(a)];
-};
+const SPAN = 46;
+const centsToPct = c => 50 + Math.max(-50, Math.min(50, c)) / 50 * SPAN;
 const f2 = n => n.toFixed(2);
 
 /* ============================================================
@@ -504,10 +414,9 @@ const f2 = n => n.toFixed(2);
 const $ = id => document.getElementById(id);
 let instrument = "gitar", presetIndex = 0, strings = [];
 let running = false, audioCtx = null, analyser = null, micStream = null, sampleBuf = null;
-let wantDeg = 0, viewDeg = 0, history = [], lastSeen = 0, rafId = 0, lastDetect = 0;
-let mode = "needle", strobeSpeed = 0, sAng1 = 0, sAng2 = 0, lastFrame = 0;
+let wantPct = 50, viewPct = 50, history = [], lastSeen = 0, rafId = 0, lastDetect = 0;
+let mode = "needle", strobeSpeed = 0, sOff1 = 0, sOff2 = 0, lastFrame = 0;
 let lockedIndex = -1, hpNode = null, lpNode = null, wakeLock = null;
-let tuneLog = [], holdLabel = null, holdSince = 0;
 
 /* ---------- pengaturan tersimpan ---------- */
 const LS_KEY = "chelebes.tuner.v1";
@@ -540,31 +449,12 @@ function updateBandLimits(){
 const currentPreset = () => INSTRUMENTS[instrument].presets[presetIndex];
 
 function buildGauge(){
-  const [ax, ay] = polar(-MAX_DEG, R_OUT), [bx, by] = polar(MAX_DEG, R_OUT);
-  $("gaugeArc").setAttribute("d", `M ${f2(ax)} ${f2(ay)} A ${R_OUT} ${R_OUT} 0 0 1 ${f2(bx)} ${f2(by)}`);
-
-  const zd = centsToDeg(5);                       // zona hijau ±5 cent
-  const [p1x, p1y] = polar(-zd, R_IN),  [p2x, p2y] = polar(zd, R_IN);
-  const [p3x, p3y] = polar(zd, R_OUT),  [p4x, p4y] = polar(-zd, R_OUT);
-  $("gaugeZone").setAttribute("d",
-    `M ${f2(p1x)} ${f2(p1y)} A ${R_IN} ${R_IN} 0 0 1 ${f2(p2x)} ${f2(p2y)} ` +
-    `L ${f2(p3x)} ${f2(p3y)} A ${R_OUT} ${R_OUT} 0 0 0 ${f2(p4x)} ${f2(p4y)} Z`);
-
-  let ticks = "";
+  let t = "";
   for (let c = -50; c <= 50; c += 5){
-    const major = c % 25 === 0, deg = centsToDeg(c);
-    const [x1, y1] = polar(deg, R_OUT);
-    const [x2, y2] = polar(deg, R_OUT - (major ? 13 : 7));
-    ticks += `<line x1="${f2(x1)}" y1="${f2(y1)}" x2="${f2(x2)}" y2="${f2(y2)}" ` +
-      `stroke="rgba(228,236,242,${major ? .82 : .42})" stroke-width="${major ? 2.2 : 1.2}" stroke-linecap="round"/>`;
+    const mj = c % 25 === 0;
+    t += `<i class="${mj ? "mj" : ""}" style="left:${c + 50}%;height:${mj ? 16 : 9}px"></i>`;
   }
-  $("gaugeTicks").innerHTML = ticks;
-
-  // hanya −50 dan +50 — titik nol sudah diwakili pita hijau
-  $("gaugeLabels").innerHTML = [-50, 50].map(c => {
-    const [x, y] = polar(centsToDeg(c), R_OUT - 26);
-    return `<text x="${f2(x)}" y="${f2(y + 4)}">${c > 0 ? "+" + c : c}</text>`;
-  }).join("");
+  $("gaugeTicks").innerHTML = t;
 }
 
 function buildTabs(){
@@ -572,15 +462,9 @@ function buildTabs(){
     `<button role="tab" data-k="${k}" aria-selected="${k === instrument}">${v.label}</button>`).join("");
   $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => {
     instrument = b.dataset.k; presetIndex = 0;
-    buildTabs(); buildPresets(); buildStrings(); syncIcons();
-    resetDisplay(); resetSession(); saveSettings();
+    buildTabs(); buildPresets(); buildStrings();
+    resetDisplay(); saveSettings();
   });
-}
-
-function syncIcons(){
-  const ico = INSTRUMENTS[instrument].icon;
-  $("icoGuitar").setAttribute("opacity", ico === "guitar" ? "1" : ".3");
-  $("icoViolin").setAttribute("opacity", ico === "violin" ? "1" : ".3");
 }
 
 function buildPresets(){
@@ -673,16 +557,6 @@ function paintLock(){
     el.classList.toggle("locked", +el.dataset.i === lockedIndex));
 }
 
-/* ---------- riwayat tuning ---------- */
-function resetSession(){ tuneLog = []; holdLabel = null; paintHist(); }
-
-function paintHist(){
-  $("histCount").textContent = tuneLog.length ? tuneLog.length + " senar" : "belum ada";
-  $("histList").innerHTML = tuneLog.length
-    ? tuneLog.map(e => `<li><b>${e.label}</b><span>${e.hz} Hz · ${e.time}</span></li>`).join("")
-    : `<li class="empty">Belum ada senar yang tercatat pas.</li>`;
-}
-
 /* ---------- layar tetap menyala ---------- */
 async function acquireWakeLock(){
   try {
@@ -701,26 +575,26 @@ function setMode(m){
   $("modes").querySelectorAll("button").forEach(b =>
     b.setAttribute("aria-selected", String(b.dataset.m === m)));
   $("gaugeGroup").style.display  = m === "needle" ? "" : "none";
-  $("strobeGroup").style.display = m === "strobe" ? "" : "none";
-  // di mode strobo pembacaan naik ke tengah cincin
-  $("readout").setAttribute("transform", m === "strobe" ? "translate(0,-42)" : "translate(0,0)");
+  $("strobeGroup").style.display = m === "strobe" ? "flex" : "none";
   if (!running) $("status").textContent = m === "strobe"
-    ? "Strobo: pola berhenti berputar = nada sudah pas."
+    ? "Strobo: pola berhenti bergeser = nada sudah pas."
     : "Ketuk senar untuk mendengar nada acuan.";
   saveSettings();
 }
 
 function resetDisplay(){
-  history = []; wantDeg = 0; strobeSpeed = 0;
+  history = []; wantPct = 50; strobeSpeed = 0;
   $("dTarget").textContent = "—";
   $("dNote").textContent = "—";
-  $("dNote").setAttribute("fill", "#EAF7FF");
+  $("dNote").style.color = "#EAF7FF";
   $("dHz").textContent = running ? "petik satu senar…" : "tekan MULAI";
   $("dCents").textContent = "";
-  $("needle").setAttribute("fill", "#EAF7FF");
-  $("needleGlow").setAttribute("fill", "#8FD3F4");
-  $("strobeBand1").setAttribute("stroke", "#D7DEE4");
-  $("strobeBand2").setAttribute("stroke", "#8FA6B9");
+  $("dCents").style.color = "rgba(228,236,242,.72)";
+  $("needle").style.background = "#EAF7FF";
+  $("needle").style.boxShadow  = "0 0 12px 3px rgba(143,211,244,.75)";
+  $("needleG").style.left = "50%";
+  $("strobeBand1").style.setProperty("--sc", "#D7DEE4");
+  $("strobeBand2").style.setProperty("--sc", "#8FA6B9");
   document.querySelectorAll(".sstr").forEach(el => el.classList.remove("active", "tuned"));
 }
 
@@ -818,15 +692,15 @@ function loop(){
   lastFrame = now;
 
   if (mode === "needle"){
-    viewDeg += (wantDeg - viewDeg) * 0.3;                     // jarum halus
-    $("needleG").setAttribute("transform", `rotate(${viewDeg.toFixed(2)} ${PIVOT_X} ${PIVOT_Y})`);
+    viewPct += (wantPct - viewPct) * 0.3;                     // penanda bergerak halus
+    $("needleG").style.left = viewPct.toFixed(2) + "%";
   } else {
-    // Strobo: kecepatan putar sebanding selisih cent.
-    // Diam = pas · searah jarum jam = ketinggian · berlawanan = kerendahan.
-    sAng1 = (sAng1 + strobeSpeed * dt) % 360;
-    sAng2 = (sAng2 + strobeSpeed * 1.5 * dt) % 360;  // 16 pita, laju linier sama
-    $("strobeRot1").setAttribute("transform", `rotate(${sAng1.toFixed(2)} 200 200)`);
-    $("strobeRot2").setAttribute("transform", `rotate(${sAng2.toFixed(2)} 200 200)`);
+    // Strobo: laju geser pita sebanding selisih cent.
+    // Diam = pas · bergeser ke kanan = ketinggian · ke kiri = kerendahan.
+    sOff1 = (sOff1 + strobeSpeed * dt) % 28;
+    sOff2 = (sOff2 + strobeSpeed * dt) % 20;
+    $("strobeBand1").style.backgroundPositionX = sOff1.toFixed(2) + "px";
+    $("strobeBand2").style.backgroundPositionX = sOff2.toFixed(2) + "px";
   }
 }
 
@@ -852,38 +726,25 @@ function render(freq){
   const nm = midiToName(best.midi);
   $("dTarget").textContent = "SENAR " + best.label;
   $("dNote").textContent   = nm.name + nm.oct;
-  $("dNote").setAttribute("fill", color);
+  $("dNote").style.color = color;
   $("dHz").textContent     = freq.toFixed(1) + " Hz · target " + best.freq.toFixed(1);
   $("dCents").textContent  = inTune ? "PAS ✓"
     : Math.abs(cents) > 99 ? (cents < 0 ? "JAUH DI BAWAH" : "JAUH DI ATAS")
     : (cents < 0 ? "RENDAH " : "TINGGI ") + (cents > 0 ? "+" : "") + cents.toFixed(0) + " CENT";
-  $("dCents").setAttribute("fill", inTune ? "#7FE0A6" : "rgba(228,236,242,.72)");
+  $("dCents").style.color = inTune ? "#7FE0A6" : "rgba(228,236,242,.72)";
 
-  $("needle").setAttribute("fill", color);
-  $("needleGlow").setAttribute("fill", glow);
-  wantDeg = centsToDeg(Math.max(-50, Math.min(50, cents)));
-  strobeSpeed = Math.max(-240, Math.min(240, cents * 4));
-  $("strobeBand1").setAttribute("stroke", inTune ? "#B6F0CC" : close ? "#F0D8B4" : "#D7DEE4");
-  $("strobeBand2").setAttribute("stroke", inTune ? "#79C79A" : close ? "#C6A277" : "#8FA6B9");
+  $("needle").style.background = color;
+  $("needle").style.boxShadow  = "0 0 12px 3px " + glow;
+  wantPct = centsToPct(cents);
+  strobeSpeed = Math.max(-260, Math.min(260, cents * 5));
+  $("strobeBand1").style.setProperty("--sc", inTune ? "#B6F0CC" : close ? "#F0D8B4" : "#D7DEE4");
+  $("strobeBand2").style.setProperty("--sc", inTune ? "#79C79A" : close ? "#C6A277" : "#8FA6B9");
 
   document.querySelectorAll(".sstr").forEach(el => {
     const s = strings[+el.dataset.i];
     el.classList.toggle("active", s.midi === best.midi && !inTune);
     el.classList.toggle("tuned",  s.midi === best.midi && inTune);
   });
-
-  // riwayat: catat kalau satu senar bertahan "pas" lebih dari 0,7 detik
-  if (inTune){
-    const t = performance.now();
-    if (holdLabel !== best.label){ holdLabel = best.label; holdSince = t; }
-    else if (t - holdSince > 700 && !tuneLog.some(e => e.label === best.label)){
-      const d = new Date();
-      tuneLog.push({ label: best.label, hz: freq.toFixed(1),
-        time: String(d.getHours()).padStart(2, "0") + "." +
-              String(d.getMinutes()).padStart(2, "0") });
-      paintHist();
-    }
-  } else holdLabel = null;
 
   if (inTune && navigator.vibrate) navigator.vibrate(18);
 }
@@ -899,9 +760,8 @@ function setA4(v){
 /* ---------- wiring ---------- */
 $("preset").onchange = e => {
   presetIndex = +e.target.value;
-  buildStrings(); resetDisplay(); resetSession(); saveSettings();
+  buildStrings(); resetDisplay(); saveSettings();
 };
-$("histClr").onclick = () => resetSession();
 
 /* Kembali dari layar terkunci / tab lain: hidupkan lagi audio dan wake lock. */
 document.addEventListener("visibilitychange", async () => {
@@ -917,22 +777,24 @@ $("a4up").onclick    = () => setA4(A4 + 1);
 $("a4dn").onclick    = () => setA4(A4 - 1);
 
 loadSettings();
-buildGauge(); buildTabs(); buildPresets(); buildStrings(); syncIcons();
-setMode(mode); resetDisplay(); paintHist();
+buildGauge(); buildTabs(); buildPresets(); buildStrings();
+setMode(mode); resetDisplay();
 $("a4v").textContent = A4;
 
 /* pekerja layanan: bisa dipakai offline setelah sekali dibuka */
 if ("serviceWorker" in navigator){
   window.addEventListener("load", () =>
-    navigator.serviceWorker.register("sw.js").catch(() => {}));
+    navigator.serviceWorker
+      .register("sw.js", { updateViaCache: "none" })   // selalu cek versi baru
+      .catch(() => {}));
 }
 
 /* pratinjau tanpa mikrofon: tambahkan ?demo=1 di URL */
 if (new URLSearchParams(location.search).get("demo")){
   if (new URLSearchParams(location.search).get("strobe")) setMode("strobe");
   render(midiToFreq(45) * Math.pow(2, -11 / 1200));
-  viewDeg = wantDeg;
-  $("needleG").setAttribute("transform", `rotate(${wantDeg.toFixed(2)} ${PIVOT_X} ${PIVOT_Y})`);
+  viewPct = wantPct;
+  $("needleG").style.left = wantPct.toFixed(2) + "%";
 }
 </script>
 </body>
