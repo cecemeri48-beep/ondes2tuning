@@ -13,8 +13,8 @@
     "minimal-ui"
   ],
   "orientation": "portrait",
-  "background_color": "#F7EAD5",
-  "theme_color": "#F7EAD5",
+  "background_color": "#17120E",
+  "theme_color": "#17120E",
   "categories": [
     "music",
     "utilities"
