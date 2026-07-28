@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#141312">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chelebes">
+<meta name="description" content="Tuner digital gitar, biola, bass, dan ukulele dengan mode jarum dan strobo.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>The Onde-Onde's Chelebes — Nature Pitch Calibrator</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -62,7 +68,10 @@
   select{width:100%; height:38px; padding:0 34px 0 12px; border-radius:8px;
     background:rgba(0,0,0,.28) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' stroke='rgba(242,240,237,.55)' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
     border:1px solid var(--line2); color:var(--text); font:500 13.5px/1 var(--sans);
-    -webkit-appearance:none; appearance:none; cursor:pointer}
+    -webkit-appearance:none; appearance:none; cursor:pointer; color-scheme:dark}
+  /* popup dropdown native (Chrome Windows/Linux) ikut tema gelap */
+  select option{background:#1E1C1A; color:#F2F0ED}
+  select option:checked{background:#C1272D; color:#FFF}
 
   .strings{display:flex; gap:5px; width:100%}
   .chip{flex:1; min-width:0; height:50px; border-radius:8px; cursor:pointer;
@@ -75,6 +84,54 @@
   .chip .f{font-size:9.5px; color:var(--text3); font-variant-numeric:tabular-nums}
   .chip.active{border-color:var(--redlit); background:rgba(224,69,74,.20); color:var(--text)}
   .chip.tuned{border-color:var(--green); background:rgba(114,188,143,.20); color:var(--text)}
+  .chip.locked{border-color:var(--blue); box-shadow:inset 0 0 0 1px rgba(94,159,232,.55)}
+  .chip.locked .n::after{content:"\00a0\1F512"; font-size:9px}
+
+  /* ---- papan jari biola ---- */
+  .fb{display:block; width:100%; height:auto}
+  .fstr{cursor:pointer}
+  .fstr .hit{fill:transparent}
+  .fstr .ln{stroke:#CBD3DA; stroke-linecap:round; transition:stroke .15s,stroke-width .15s}
+  .fstr .lb{fill:var(--text2); font:600 12px var(--sans); text-anchor:middle;
+    transition:fill .15s}
+  .fstr .hz{fill:var(--text3); font:400 9px var(--sans); text-anchor:middle}
+  .fstr:hover .ln{stroke:#FFF}
+  .fstr:hover .lb{fill:var(--text)}
+  .fstr.active .ln{stroke:var(--redlit)}
+  .fstr.active .lb{fill:var(--redlit)}
+  .fstr.tuned  .ln{stroke:var(--green)}
+  .fstr.tuned  .lb{fill:var(--green)}
+  .fstr.locked .lb{fill:var(--blue)}
+  .fstr.locked .lk{opacity:1}
+  .fstr .lk{opacity:0; fill:var(--blue); font-size:9px; text-anchor:middle; transition:opacity .15s}
+
+  /* ---- indikator kekuatan sinyal ---- */
+  .level{width:100%; height:4px; border-radius:3px; background:rgba(0,0,0,.38); overflow:hidden}
+  .level i{display:block; height:100%; width:0%; border-radius:3px;
+    background:linear-gradient(90deg,#3E6B53,#72BC8F 55%,#DE9255);
+    transition:width .09s linear}
+
+  /* ---- riwayat tuning ---- */
+  .hist{width:100%; background:var(--panel); border:1px solid var(--line);
+    border-radius:11px; padding:9px 11px}
+  .hist summary{cursor:pointer; list-style:none; display:flex; align-items:center;
+    justify-content:space-between; gap:8px; font:600 12px/1.4 var(--sans); color:var(--text2)}
+  .hist summary::-webkit-details-marker{display:none}
+  .hist summary::after{content:"▾"; color:var(--text3); font-size:11px}
+  .hist[open] summary::after{content:"▴"}
+  .hist ol{margin:9px 0 0; padding:0; list-style:none;
+    display:flex; flex-direction:column; gap:4px}
+  .hist li{display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:6px 9px; border-radius:7px; font-variant-numeric:tabular-nums;
+    background:rgba(114,188,143,.10); border:1px solid rgba(114,188,143,.22)}
+  .hist li b{font:600 12.5px/1 var(--sans); color:var(--green)}
+  .hist li span{font-size:10.5px; color:var(--text3)}
+  .hist .empty{display:block; padding:10px 0 2px; text-align:center;
+    font-size:11.5px; color:var(--text3); background:none; border:0}
+  .histclr{margin-top:8px; width:100%; height:30px; border-radius:7px; cursor:pointer;
+    background:rgba(255,255,255,.05); border:1px solid var(--line2);
+    color:var(--text3); font:500 11.5px/1 var(--sans); transition:background .15s,color .15s}
+  .histclr:hover{background:rgba(255,255,255,.1); color:var(--text)}
 
   .row{display:flex; gap:8px; width:100%; align-items:center}
   .start{flex:1; height:46px; border-radius:9px; cursor:pointer;
@@ -102,7 +159,8 @@
 
   .modes button:focus-visible,
   .tabs button:focus-visible,.calib button:focus-visible,select:focus-visible,
-  .chip:focus-visible,.start:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+  .chip:focus-visible,.start:focus-visible,.histclr:focus-visible,
+  .hist summary:focus-visible,.fstr:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
 
   @media (max-width:400px){ .chip{height:46px} .chip .n{font-size:12.5px} }
 </style>
@@ -303,9 +361,16 @@
         <button id="a4up" aria-label="Naikkan kalibrasi A4">+</button>
       </div>
     </div>
+    <div class="level" aria-hidden="true"><i id="lvl"></i></div>
   </div>
 
   <p class="status" id="status">Ketuk senar untuk mendengar nada acuan.</p>
+
+  <details class="hist" id="hist">
+    <summary>Riwayat tuning · <span id="histCount">belum ada</span></summary>
+    <ol id="histList"></ol>
+    <button class="histclr" id="histClr">Hapus riwayat</button>
+  </details>
 </div>
 
 <script>
@@ -351,16 +416,20 @@ const midiToName   = m => ({ name: NOTE_NAMES[((m % 12) + 12) % 12], oct: Math.f
    3. DETEKSI PITCH — algoritma YIN
    Identik untuk gitar, biola, bass, ukulele.
    ============================================================ */
-const MIN_F = 30, MAX_F = 1500;
+/* Batas frekuensi menyesuaikan instrumen (diisi updateBandLimits).
+   Gitar mulai ~58 Hz sehingga dengung kipas & hum listrik 50 Hz tidak ikut terbaca,
+   sementara bass 5 senar tetap bisa turun sampai ~22 Hz. */
+let detMinF = 30, detMaxF = 1500, lastRms = 0;
+const RMS_GATE = 0.013;                              // gerbang volume
 
 function detectPitch(buf, sr){
   let rms = 0;
   for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-  rms = Math.sqrt(rms / buf.length);
-  if (rms < 0.008) return -1;                        // gerbang volume
+  lastRms = rms = Math.sqrt(rms / buf.length);
+  if (rms < RMS_GATE) return -1;
 
-  const maxTau = Math.min(Math.floor(sr / MIN_F), buf.length >> 1);
-  const minTau = Math.max(2, Math.floor(sr / MAX_F));
+  const maxTau = Math.min(Math.floor(sr / detMinF), buf.length >> 1);
+  const minTau = Math.max(2, Math.floor(sr / detMaxF));
   const W = Math.min(2048, buf.length - maxTau);
   if (W < 512) return -1;
 
@@ -392,12 +461,24 @@ function detectPitch(buf, sr){
     tau = best;
   }
 
+  // (c2) penjaga oktaf — YIN kadang mengunci satu oktaf terlalu tinggi pada
+  // senar tebal. Kalau kelipatan tau punya lembah yang hampir sama dalamnya,
+  // periode yang lebih panjang itulah nada dasar yang sebenarnya.
+  for (let k = 2; k <= 3; k++){
+    const t0 = Math.round(tau * k);
+    if (t0 >= maxTau - 2) break;
+    let bt = t0;
+    const lo = Math.max(minTau, t0 - 3), hi = Math.min(maxTau - 2, t0 + 3);
+    for (let t = lo; t <= hi; t++) if (cm[t] < cm[bt]) bt = t;
+    if (cm[bt] < cm[tau] * 1.12 && cm[bt] < 0.20){ tau = bt; break; }
+  }
+
   const x0 = cm[tau - 1] ?? cm[tau], x2 = cm[tau + 1] ?? cm[tau];   // (d) parabolik
   const a = (x0 + x2 - 2 * cm[tau]) / 2, b = (x2 - x0) / 2;
   const refined = a !== 0 ? tau - b / (2 * a) : tau;
 
   const freq = sr / refined;
-  return (freq >= MIN_F && freq <= MAX_F) ? freq : -1;
+  return (freq >= detMinF && freq <= detMaxF) ? freq : -1;
 }
 
 /* ============================================================
@@ -422,6 +503,36 @@ let instrument = "gitar", presetIndex = 0, strings = [];
 let running = false, audioCtx = null, analyser = null, micStream = null, sampleBuf = null;
 let wantDeg = 0, viewDeg = 0, history = [], lastSeen = 0, rafId = 0, lastDetect = 0;
 let mode = "needle", strobeSpeed = 0, sAng1 = 0, sAng2 = 0, lastFrame = 0;
+let lockedIndex = -1, hpNode = null, lpNode = null, wakeLock = null;
+let tuneLog = [], holdLabel = null, holdSince = 0;
+
+/* ---------- pengaturan tersimpan ---------- */
+const LS_KEY = "chelebes.tuner.v1";
+function saveSettings(){
+  try { localStorage.setItem(LS_KEY,
+    JSON.stringify({ instrument, presetIndex, A4, mode })); } catch(e){}
+}
+function loadSettings(){
+  try {
+    const s = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+    if (s.instrument && INSTRUMENTS[s.instrument]) instrument = s.instrument;
+    const n = INSTRUMENTS[instrument].presets.length;
+    if (Number.isInteger(s.presetIndex) && s.presetIndex >= 0 && s.presetIndex < n)
+      presetIndex = s.presetIndex;
+    if (typeof s.A4 === "number" && isFinite(s.A4)) A4 = Math.max(430, Math.min(450, s.A4));
+    if (s.mode === "needle" || s.mode === "strobe") mode = s.mode;
+  } catch(e){}
+}
+
+/* ---------- batas frekuensi per instrumen ---------- */
+function updateBandLimits(){
+  const lo = Math.min(...strings.map(s => s.freq));
+  const hi = Math.max(...strings.map(s => s.freq));
+  detMinF = lo * 0.70;
+  detMaxF = hi * 2.20;
+  if (hpNode) hpNode.frequency.value = Math.max(20, lo * 0.72);
+  if (lpNode) lpNode.frequency.value = Math.min(6000, Math.max(1200, hi * 2.6));
+}
 
 const currentPreset = () => INSTRUMENTS[instrument].presets[presetIndex];
 
@@ -458,7 +569,8 @@ function buildTabs(){
     `<button role="tab" data-k="${k}" aria-selected="${k === instrument}">${v.label}</button>`).join("");
   $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => {
     instrument = b.dataset.k; presetIndex = 0;
-    buildTabs(); buildPresets(); buildStrings(); syncIcons(); resetDisplay();
+    buildTabs(); buildPresets(); buildStrings(); syncIcons();
+    resetDisplay(); resetSession(); saveSettings();
   });
 }
 
@@ -478,12 +590,106 @@ function buildStrings(){
     const { name, oct } = midiToName(m);
     return { midi:m, label:name + oct, freq:midiToFreq(m) };
   });
+  lockedIndex = -1;
+  updateBandLimits();
+
+  if (INSTRUMENTS[instrument].icon === "violin") buildFingerboard();
+  else buildChips();
+
+  $("strings").querySelectorAll(".sstr").forEach(el => {
+    el.onclick = () => pickString(+el.dataset.i);
+    el.onkeydown = e => {
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pickString(+el.dataset.i); }
+    };
+  });
+}
+
+function buildChips(){
+  $("strings").className = "strings";
   $("strings").innerHTML = strings.map((s, i) =>
-    `<button class="chip" data-i="${i}" aria-label="Nada acuan ${s.label}">
+    `<button class="chip sstr" data-i="${i}" aria-label="Nada acuan ${s.label}">
        <span class="n">${s.label}</span><span class="f">${s.freq.toFixed(1)}</span>
      </button>`).join("");
-  $("strings").querySelectorAll(".chip").forEach(c =>
-    c.onclick = () => playTone(strings[+c.dataset.i].freq));
+}
+
+/* Papan jari biola: senar melengkung menyebar dari nut yang sempit
+   ke arah bawah yang melebar, seperti fingerboard sungguhan. */
+function buildFingerboard(){
+  const n = strings.length;
+  const topL = 142, topR = 198, botL = 74, botR = 266;
+  const tx = i => topL + (topR - topL) * (i + .5) / n;
+  const bx = i => botL + (botR - botL) * (i + .5) / n;
+
+  const parts = strings.map((s, i) => {
+    const x1 = tx(i), x2 = bx(i);
+    const w  = 1.0 + (n - 1 - i) * 0.55;                 // senar bawah lebih tebal
+    const c1 = x1 + (x2 - x1) * .12, c2 = x1 + (x2 - x1) * .64;
+    const ln = `M${x1.toFixed(1)} 20 C${c1.toFixed(1)} 58 ${c2.toFixed(1)} 92 ${x2.toFixed(1)} 116`;
+    const hit = `M${(x1 - 6).toFixed(1)} 8 L${(x1 + 6).toFixed(1)} 8 ` +
+                `L${(x2 + 22).toFixed(1)} 150 L${(x2 - 22).toFixed(1)} 150 Z`;
+    return `<g class="fstr sstr" data-i="${i}" tabindex="0" role="button"
+               aria-label="Nada acuan ${s.label}">
+      <path class="hit" d="${hit}"/>
+      <path class="ln" d="${ln}" fill="none" stroke-width="${w.toFixed(2)}"/>
+      <text class="lb" x="${x2.toFixed(1)}" y="134">${s.label}</text>
+      <text class="hz" x="${x2.toFixed(1)}" y="146">${s.freq.toFixed(1)}</text>
+      <text class="lk" x="${x1.toFixed(1)}" y="6">●</text>
+    </g>`;
+  }).join("");
+
+  $("strings").className = "";
+  $("strings").innerHTML =
+   `<svg class="fb" viewBox="0 0 340 152" role="group" aria-label="Papan jari">
+      <defs>
+        <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#241C18"/><stop offset=".40" stop-color="#3B2D25"/>
+          <stop offset=".68" stop-color="#291F1A"/><stop offset="1" stop-color="#17110E"/>
+        </linearGradient>
+      </defs>
+      <path d="M140 16 L200 16 L268 120 L72 120 Z" fill="url(#wood)"
+            stroke="rgba(255,255,255,.10)" stroke-width="1"/>
+      <rect x="136" y="9" width="68" height="7.5" rx="3"
+            fill="#D9CFC0" stroke="rgba(0,0,0,.35)" stroke-width=".8"/>
+      ${parts}
+    </svg>`;
+}
+
+/* Ketuk senar: bunyikan nada acuan sekaligus kunci / lepas kunci. */
+function pickString(i){
+  lockedIndex = (lockedIndex === i) ? -1 : i;
+  paintLock();
+  playTone(strings[i].freq);
+  $("status").className = "status";
+  $("status").textContent = lockedIndex < 0
+    ? "Kunci dilepas — senar dideteksi otomatis lagi."
+    : `Terkunci di senar ${strings[i].label}. Ketuk lagi untuk melepas.`;
+}
+
+function paintLock(){
+  document.querySelectorAll(".sstr").forEach(el =>
+    el.classList.toggle("locked", +el.dataset.i === lockedIndex));
+}
+
+/* ---------- riwayat tuning ---------- */
+function resetSession(){ tuneLog = []; holdLabel = null; paintHist(); }
+
+function paintHist(){
+  $("histCount").textContent = tuneLog.length ? tuneLog.length + " senar" : "belum ada";
+  $("histList").innerHTML = tuneLog.length
+    ? tuneLog.map(e => `<li><b>${e.label}</b><span>${e.hz} Hz · ${e.time}</span></li>`).join("")
+    : `<li class="empty">Belum ada senar yang tercatat pas.</li>`;
+}
+
+/* ---------- layar tetap menyala ---------- */
+async function acquireWakeLock(){
+  try {
+    if ("wakeLock" in navigator && !wakeLock)
+      wakeLock = await navigator.wakeLock.request("screen");
+  } catch(e){}
+}
+function releaseWakeLock(){
+  try { if (wakeLock) wakeLock.release(); } catch(e){}
+  wakeLock = null;
 }
 
 /* ---------- mode tampilan: jarum / strobo ---------- */
@@ -498,6 +704,7 @@ function setMode(m){
   if (!running) $("status").textContent = m === "strobe"
     ? "Strobo: pola berhenti berputar = nada sudah pas."
     : "Ketuk senar untuk mendengar nada acuan.";
+  saveSettings();
 }
 
 function resetDisplay(){
@@ -511,7 +718,7 @@ function resetDisplay(){
   $("needleGlow").setAttribute("fill", "#8FD3F4");
   $("strobeBand1").setAttribute("stroke", "#D7DEE4");
   $("strobeBand2").setAttribute("stroke", "#8FA6B9");
-  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active", "tuned"));
+  document.querySelectorAll(".sstr").forEach(el => el.classList.remove("active", "tuned"));
 }
 
 /* ---------- nada acuan ---------- */
@@ -544,13 +751,16 @@ async function start(){
     await audioCtx.resume();    // iOS: harus setelah tap user
 
     const src = audioCtx.createMediaStreamSource(micStream);
-    const hp = audioCtx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 30;
-    const lp = audioCtx.createBiquadFilter(); lp.type = "lowpass";  lp.frequency.value = 1600;
+    hpNode = audioCtx.createBiquadFilter(); hpNode.type = "highpass"; hpNode.Q.value = 0.7;
+    lpNode = audioCtx.createBiquadFilter(); lpNode.type = "lowpass";  lpNode.Q.value = 0.7;
+    updateBandLimits();                      // batas menyesuaikan instrumen aktif
     analyser = audioCtx.createAnalyser(); analyser.fftSize = 4096;
-    src.connect(hp).connect(lp).connect(analyser);
+    src.connect(hpNode).connect(lpNode).connect(analyser);
     sampleBuf = new Float32Array(analyser.fftSize);
 
     running = true;
+    lastFrame = 0;
+    acquireWakeLock();
     $("start").textContent = "BERHENTI";
     $("start").classList.add("on");
     $("status").textContent = "Mendengarkan… petik satu senar.";
@@ -565,7 +775,9 @@ function stop(){
   running = false;
   cancelAnimationFrame(rafId);
   if (micStream) micStream.getTracks().forEach(t => t.stop());
-  micStream = null; analyser = null;
+  micStream = null; analyser = null; hpNode = null; lpNode = null;
+  releaseWakeLock();
+  lastRms = 0; $("lvl").style.width = "0%";
   $("start").textContent = "MULAI";
   $("start").classList.remove("on");
   $("status").className = "status";
@@ -594,6 +806,11 @@ function loop(){
     }
   }
 
+  // indikator kekuatan sinyal (skala desibel supaya terasa alami)
+  const pct = lastRms > 0
+    ? Math.max(0, Math.min(100, (20 * Math.log10(lastRms) + 62) / 62 * 100)) : 0;
+  $("lvl").style.width = pct.toFixed(0) + "%";
+
   const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
   lastFrame = now;
 
@@ -612,10 +829,16 @@ function loop(){
 
 /* ---------- tampilkan hasil ---------- */
 function render(freq){
-  let best = strings[0], bestAbs = Infinity;
-  for (const s of strings){
-    const c = Math.abs(centsBetween(freq, s.freq));
-    if (c < bestAbs){ bestAbs = c; best = s; }
+  let best;
+  if (lockedIndex >= 0 && strings[lockedIndex]){
+    best = strings[lockedIndex];              // senar dikunci manual
+  } else {
+    best = strings[0];
+    let bestAbs = Infinity;
+    for (const s of strings){
+      const c = Math.abs(centsBetween(freq, s.freq));
+      if (c < bestAbs){ bestAbs = c; best = s; }
+    }
   }
   const cents  = centsBetween(freq, best.freq);
   const inTune = Math.abs(cents) < 5;
@@ -629,6 +852,7 @@ function render(freq){
   $("dNote").setAttribute("fill", color);
   $("dHz").textContent     = freq.toFixed(1) + " Hz · target " + best.freq.toFixed(1);
   $("dCents").textContent  = inTune ? "PAS ✓"
+    : Math.abs(cents) > 99 ? (cents < 0 ? "JAUH DI BAWAH" : "JAUH DI ATAS")
     : (cents < 0 ? "RENDAH " : "TINGGI ") + (cents > 0 ? "+" : "") + cents.toFixed(0) + " CENT";
   $("dCents").setAttribute("fill", inTune ? "#7FE0A6" : "rgba(228,236,242,.72)");
 
@@ -639,11 +863,24 @@ function render(freq){
   $("strobeBand1").setAttribute("stroke", inTune ? "#B6F0CC" : close ? "#F0D8B4" : "#D7DEE4");
   $("strobeBand2").setAttribute("stroke", inTune ? "#79C79A" : close ? "#C6A277" : "#8FA6B9");
 
-  document.querySelectorAll(".chip").forEach(c => {
-    const s = strings[+c.dataset.i];
-    c.classList.toggle("active", s.midi === best.midi && !inTune);
-    c.classList.toggle("tuned",  s.midi === best.midi && inTune);
+  document.querySelectorAll(".sstr").forEach(el => {
+    const s = strings[+el.dataset.i];
+    el.classList.toggle("active", s.midi === best.midi && !inTune);
+    el.classList.toggle("tuned",  s.midi === best.midi && inTune);
   });
+
+  // riwayat: catat kalau satu senar bertahan "pas" lebih dari 0,7 detik
+  if (inTune){
+    const t = performance.now();
+    if (holdLabel !== best.label){ holdLabel = best.label; holdSince = t; }
+    else if (t - holdSince > 700 && !tuneLog.some(e => e.label === best.label)){
+      const d = new Date();
+      tuneLog.push({ label: best.label, hz: freq.toFixed(1),
+        time: String(d.getHours()).padStart(2, "0") + "." +
+              String(d.getMinutes()).padStart(2, "0") });
+      paintHist();
+    }
+  } else holdLabel = null;
 
   if (inTune && navigator.vibrate) navigator.vibrate(18);
 }
@@ -653,16 +890,39 @@ function setA4(v){
   A4 = Math.max(430, Math.min(450, v));
   $("a4v").textContent = A4;
   buildStrings();
+  saveSettings();
 }
 
 /* ---------- wiring ---------- */
-$("preset").onchange = e => { presetIndex = +e.target.value; buildStrings(); resetDisplay(); };
+$("preset").onchange = e => {
+  presetIndex = +e.target.value;
+  buildStrings(); resetDisplay(); resetSession(); saveSettings();
+};
+$("histClr").onclick = () => resetSession();
+
+/* Kembali dari layar terkunci / tab lain: hidupkan lagi audio dan wake lock. */
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState !== "visible" || !running) return;
+  if (audioCtx && audioCtx.state === "suspended"){
+    try { await audioCtx.resume(); } catch(e){}
+  }
+  acquireWakeLock();
+});
 $("modes").querySelectorAll("button").forEach(b => b.onclick = () => setMode(b.dataset.m));
 $("start").onclick   = () => running ? stop() : start();
 $("a4up").onclick    = () => setA4(A4 + 1);
 $("a4dn").onclick    = () => setA4(A4 - 1);
 
-buildGauge(); buildTabs(); buildPresets(); buildStrings(); syncIcons(); setMode("needle"); resetDisplay();
+loadSettings();
+buildGauge(); buildTabs(); buildPresets(); buildStrings(); syncIcons();
+setMode(mode); resetDisplay(); paintHist();
+$("a4v").textContent = A4;
+
+/* pekerja layanan: bisa dipakai offline setelah sekali dibuka */
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", () =>
+    navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
 
 /* pratinjau tanpa mikrofon: tambahkan ?demo=1 di URL */
 if (new URLSearchParams(location.search).get("demo")){
