@@ -1,6 +1,6 @@
 /* Pekerja layanan Chelebes Tuner — simpan aplikasi agar bisa dipakai offline.
    Naikkan angka VERSI setiap kali berkas diperbarui supaya simpanan lama dibuang. */
-const VERSI = "v12";
+const VERSI = "v13";
 const CACHE = "chelebes-tuner-" + VERSI;
 const ASSETS = [
   "./",
@@ -11,7 +11,8 @@ const ASSETS = [
   "./icon-512.png",
   "./icon-180.png",
   "./icon-192-trans.png",
-  "./icon-512-trans.png"
+  "./icon-512-trans.png",
+  "./og-image.jpg"
 ];
 
 self.addEventListener("install", e => {
