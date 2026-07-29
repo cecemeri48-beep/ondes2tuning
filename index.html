@@ -23,6 +23,7 @@
 <meta name="twitter:title" content="The Onde-Onde’s — Nature Pitch Calibrator">
 <meta name="twitter:description" content="Tuner gitar, biola, bass, dan ukulele. Mode jarum &amp; strobo, bisa dipakai tanpa internet.">
 <meta name="twitter:image" content="https://cecemeri48-beep.github.io/ondes2tuning/og-image.jpg">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Onde2&#8217;S">
@@ -577,15 +578,21 @@ function detectPitch(buf, sr){
 
   const maxTau = Math.min(Math.floor(sr / detMinF), buf.length >> 1);
   const minTau = Math.max(2, Math.floor(sr / detMaxF));
-  const W = Math.min(2048, buf.length - maxTau);
+  if (maxTau <= minTau + 2) return -1;
+
+  /* Jendela analisis secukupnya: dua periode nada terendah sudah cukup untuk YIN,
+     jadi instrumen bernada tinggi (ukulele) tidak ikut membayar ongkos bass. */
+  const W = Math.min(2048, Math.max(512, maxTau * 2), buf.length - maxTau);
   if (W < 512) return -1;
+  /* Lompatan cuplikan: memangkas beban CPU sampai setengahnya pada jendela panjang
+     tanpa mengubah resolusi tau (ketelitian frekuensi tetap). */
+  const STEP = W >= 1536 ? 2 : 1;
 
   if (!_yinD || _yinD.length < maxTau){ _yinD = new Float32Array(maxTau); _yinC = new Float32Array(maxTau); }
   const d = _yinD, cm = _yinC;                       // (a) difference function
-  d.fill(0, 0, maxTau);
   for (let tau = 1; tau < maxTau; tau++){
     let sum = 0;
-    for (let i = 0; i < W; i++){ const dd = buf[i] - buf[i + tau]; sum += dd * dd; }
+    for (let i = 0; i < W; i += STEP){ const dd = buf[i] - buf[i + tau]; sum += dd * dd; }
     d[tau] = sum;
   }
 
@@ -653,6 +660,8 @@ let running = false, audioCtx = null, analyser = null, micStream = null, sampleB
 let wantPct = 50, viewPct = 50, history = [], lastSeen = 0, rafId = 0, lastDetect = 0;
 let mode = "needle", strobeSpeed = 0, sOff1 = 0, sOff2 = 0, lastFrame = 0;
 let lockedIndex = -1, hpNode = null, lpNode = null, wakeLock = null, lastLvl = "";
+/* penanda agar layar tidak dicat ulang berkali-kali untuk isi yang sama */
+let strEls = [], idle = true, lastPos = "", lastTone = -1, lastStr = "", wasTuned = false;
 
 /* ---------- pengaturan tersimpan ---------- */
 let skin = "etnik", discAng = 0, discRings = null;
@@ -741,7 +750,7 @@ function buildTabs(){
   $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => {
     instrument = b.dataset.k; presetIndex = 0;
     buildTabs(); buildPresets(); buildStrings();
-    resetDisplay(); saveSettings();
+    resetDisplay(true); saveSettings();
   });
 }
 
@@ -761,7 +770,8 @@ function buildStrings(){
   if (INSTRUMENTS[instrument].icon === "violin") buildFingerboard();
   else buildHeadstock();
 
-  $("strings").querySelectorAll(".sstr").forEach(el => {
+  strEls = Array.from($("strings").querySelectorAll(".sstr"));
+  strEls.forEach(el => {
     el.onclick = () => pickString(+el.dataset.i);
     el.onkeydown = e => {
       if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pickString(+el.dataset.i); }
@@ -991,16 +1001,19 @@ function pickString(i){
 }
 
 function paintLock(){
-  document.querySelectorAll(".sstr").forEach(el =>
-    el.classList.toggle("locked", +el.dataset.i === lockedIndex));
+  strEls.forEach(el => el.classList.toggle("locked", +el.dataset.i === lockedIndex));
 }
 
 /* ---------- layar tetap menyala ---------- */
 async function acquireWakeLock(){
   try {
-    if ("wakeLock" in navigator && !wakeLock)
+    if ("wakeLock" in navigator && !wakeLock){
       wakeLock = await navigator.wakeLock.request("screen");
-  } catch(e){}
+      /* sistem melepas kunci ini saat layar tertutup — kosongkan penanda
+         supaya bisa diminta lagi ketika pengguna kembali */
+      wakeLock.addEventListener("release", () => { wakeLock = null; });
+    }
+  } catch(e){ wakeLock = null; }
 }
 function releaseWakeLock(){
   try { if (wakeLock) wakeLock.release(); } catch(e){}
@@ -1020,7 +1033,10 @@ function setMode(m){
   saveSettings();
 }
 
-function resetDisplay(){
+function resetDisplay(force){
+  if (idle && !force) return;              // sudah kosong — jangan cat ulang tiap 70 ms
+  idle = true;
+  lastTone = -1; lastStr = ""; wasTuned = false;
   history = []; wantPct = 50; strobeSpeed = 0;
   $("dTarget").textContent = "—";
   $("dNote").textContent = "—";
@@ -1037,7 +1053,7 @@ function resetDisplay(){
   $("strobeBand1").style.setProperty("--sc", "#E6D6B6");
   $("strobeBand2").style.setProperty("--sc", "#A89270");
   $("strobeGroup").style.setProperty("--dc", "#DCE3E8");
-  document.querySelectorAll(".sstr").forEach(el => el.classList.remove("active", "tuned"));
+  strEls.forEach(el => el.classList.remove("active", "tuned"));
 }
 
 /* ---------- nada acuan ---------- */
@@ -1079,14 +1095,23 @@ async function start(){
 
     running = true;
     lastFrame = 0;
+    lastSeen = performance.now();            // jangan langsung dianggap sunyi
+    idle = false;
     acquireWakeLock();
     $("start").textContent = "BERHENTI";
     $("start").classList.add("on");
     $("status").textContent = "Mendengarkan… " + aksiMain() + " satu senar.";
-    resetDisplay(); loop();
+    resetDisplay(true); loop();
   } catch (e){
+    /* bersihkan agar lampu mikrofon tidak menyala terus saat penyiapan gagal */
+    if (micStream){ micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    running = false; analyser = null; hpNode = null; lpNode = null;
+    $("start").textContent = "MULAI";
+    $("start").classList.remove("on");
     $("status").className = "status err";
-    $("status").textContent = "Mikrofon ditolak / tidak tersedia. Pastikan halaman dibuka lewat HTTPS.";
+    $("status").textContent = (e && e.name === "NotAllowedError")
+      ? "Izin mikrofon ditolak. Aktifkan lewat setelan situs, lalu coba lagi."
+      : "Mikrofon tidak tersedia. Pastikan halaman dibuka lewat HTTPS.";
   }
 }
 
@@ -1096,12 +1121,14 @@ function stop(){
   if (micStream) micStream.getTracks().forEach(t => t.stop());
   micStream = null; analyser = null; hpNode = null; lpNode = null;
   releaseWakeLock();
+  /* hentikan mesin audio supaya tidak menguras baterai saat menganggur */
+  if (audioCtx && audioCtx.state === "running") audioCtx.suspend().catch(() => {});
   lastRms = 0; lastLvl = "0"; $("lvl").style.transform = "scaleX(0)";
   $("start").textContent = "MULAI";
   $("start").classList.remove("on");
   $("status").className = "status";
   $("status").textContent = "Ketuk senar untuk mendengar nada acuan.";
-  resetDisplay();
+  resetDisplay(true);
 }
 
 /* ---------- loop utama ---------- */
@@ -1135,8 +1162,11 @@ function loop(){
   lastFrame = now;
 
   if (mode === "needle"){
-    viewPct += (wantPct - viewPct) * 0.3;                     // penanda bergerak halus
-    $("needleG").style.left = viewPct.toFixed(2) + "%";
+    /* pemulusan berbasis waktu: kecepatan penanda sama di layar 60 Hz maupun 120 Hz */
+    viewPct += (wantPct - viewPct) * (dt ? 1 - Math.exp(-dt / 0.055) : 0.3);
+    if (Math.abs(wantPct - viewPct) < 0.02) viewPct = wantPct;
+    const pos = viewPct.toFixed(2) + "%";
+    if (pos !== lastPos){ lastPos = pos; $("needleG").style.left = pos; }
   } else {
     // Strobo: laju geser pita sebanding selisih cent.
     // Diam = pas · bergeser ke kanan = ketinggian · ke kiri = kerendahan.
@@ -1155,6 +1185,7 @@ function loop(){
 
 /* ---------- tampilkan hasil ---------- */
 function render(freq){
+  idle = false;
   let best;
   if (lockedIndex >= 0 && strings[lockedIndex]){
     best = strings[lockedIndex];              // senar dikunci manual
@@ -1177,47 +1208,68 @@ function render(freq){
   const neon2  = inTune ? "rgba(111,199,154,.50)" : close ? "rgba(240,188,110,.50)" : "rgba(240,140,121,.48)";
 
   const nm = midiToName(best.midi);
+  const sr = document.querySelector(".sread");
   $("dTarget").textContent = "SENAR " + best.label;
   $("dNote").textContent   = nm.name + nm.oct;
-  $("dNote").style.color = core;
-  const sr = document.querySelector(".sread");
-  sr.style.setProperty("--gl", neon);
-  sr.style.setProperty("--gl2", neon2);
   $("dHz").textContent     = freq.toFixed(1) + " Hz · target " + best.freq.toFixed(1);
   $("dCents").textContent  = inTune ? "PAS ✓"
     : Math.abs(cents) > 99 ? (cents < 0 ? "JAUH DI BAWAH" : "JAUH DI ATAS")
     : (cents < 0 ? "RENDAH " : "TINGGI ") + (cents > 0 ? "+" : "") + cents.toFixed(0) + " CENT";
-  $("dCents").style.color = inTune ? "#D8FFEA" : "#F5E9D6";
 
-  $("needle").style.background = color;
-  $("needle").style.boxShadow  = "0 0 12px 3px " + glow;
   wantPct = centsToPct(cents);
   strobeSpeed = Math.max(-260, Math.min(260, cents * 5));
-  $("strobeBand1").style.setProperty("--sc", inTune ? "#9FEEC2" : close ? "#F2D9A6" : "#E6D6B6");
-  $("strobeBand2").style.setProperty("--sc", inTune ? "#5FB287" : close ? "#C7A265" : "#A89270");
-  $("strobeGroup").style.setProperty("--dc", inTune ? "#4BE39B" : close ? "#FFC46B" : "#DCE3E8");
 
-  document.querySelectorAll(".sstr").forEach(el => {
-    const s = strings[+el.dataset.i];
-    el.classList.toggle("active", s.midi === best.midi && !inTune);
-    el.classList.toggle("tuned",  s.midi === best.midi && inTune);
-  });
+  /* warna hanya ditulis ulang saat statusnya benar-benar berubah
+     (pas / dekat / jauh), bukan 14 kali per detik */
+  const tone = inTune ? 2 : close ? 1 : 0;
+  if (tone !== lastTone){
+    lastTone = tone;
+    $("dNote").style.color = core;
+    sr.style.setProperty("--gl", neon);
+    sr.style.setProperty("--gl2", neon2);
+    $("dCents").style.color = inTune ? "#D8FFEA" : "#F5E9D6";
+    $("needle").style.background = color;
+    $("needle").style.boxShadow  = "0 0 12px 3px " + glow;
+    $("strobeBand1").style.setProperty("--sc", inTune ? "#9FEEC2" : close ? "#F2D9A6" : "#E6D6B6");
+    $("strobeBand2").style.setProperty("--sc", inTune ? "#5FB287" : close ? "#C7A265" : "#A89270");
+    $("strobeGroup").style.setProperty("--dc", inTune ? "#4BE39B" : close ? "#FFC46B" : "#DCE3E8");
+  }
 
-  if (inTune && navigator.vibrate) navigator.vibrate(18);
+  const stamp = best.midi + "|" + tone;
+  if (stamp !== lastStr){
+    lastStr = stamp;
+    strEls.forEach(el => {
+      const s = strings[+el.dataset.i];
+      if (!s) return;
+      el.classList.toggle("active", s.midi === best.midi && !inTune);
+      el.classList.toggle("tuned",  s.midi === best.midi && inTune);
+    });
+  }
+
+  /* getar sekali saat nada baru masuk, bukan terus-menerus tiap 70 ms */
+  if (inTune && !wasTuned && navigator.vibrate) navigator.vibrate(18);
+  wasTuned = inTune;
 }
 
 /* ---------- kalibrasi A4 ---------- */
 function setA4(v){
-  A4 = Math.max(430, Math.min(450, v));
+  const next = Math.max(430, Math.min(450, v));
+  if (next === A4) return;
+  A4 = next;
   $("a4v").textContent = A4;
-  buildStrings();
+  /* cukup hitung ulang frekuensi acuan — tidak perlu menggambar ulang seluruh
+     kepala gitar tiap kali tombol ditekan, dan kunci senar tetap terjaga */
+  strings.forEach(s => { s.freq = midiToFreq(s.midi); });
+  updateBandLimits();
+  const hz = $("strings").querySelectorAll(".hz");
+  strings.forEach((s, i) => { if (hz[i]) hz[i].textContent = s.freq.toFixed(1); });
   saveSettings();
 }
 
 /* ---------- wiring ---------- */
 $("preset").onchange = e => {
   presetIndex = +e.target.value;
-  buildStrings(); resetDisplay(); saveSettings();
+  buildStrings(); resetDisplay(true); saveSettings();
 };
 
 /* Kembali dari layar terkunci / tab lain: hidupkan lagi audio dan wake lock. */
@@ -1237,7 +1289,7 @@ loadSettings();
 buildGauge(); buildTabs(); buildPresets(); buildStrings();
 buildDisc(); setSkin(skin);
 $("skinBtn").onclick = () => setSkin(skin === "pro" ? "etnik" : "pro");
-setMode(mode); resetDisplay();
+setMode(mode); resetDisplay(true);
 $("a4v").textContent = A4;
 
 /* pekerja layanan: bisa dipakai offline setelah sekali dibuka */
@@ -1249,8 +1301,9 @@ if ("serviceWorker" in navigator){
 }
 
 /* pratinjau tanpa mikrofon: tambahkan ?demo=1 di URL */
-if (new URLSearchParams(location.search).get("demo")){
-  if (new URLSearchParams(location.search).get("strobe")) setMode("strobe");
+const _q = new URLSearchParams(location.search), _demo = _q.get("demo");
+if (_demo !== null && _demo !== "0" && _demo !== "false"){
+  if (_q.get("strobe")) setMode("strobe");
   render(midiToFreq(45) * Math.pow(2, -11 / 1200));
   viewPct = wantPct;
   $("needleG").style.left = wantPct.toFixed(2) + "%";
