@@ -11,7 +11,7 @@
 <meta property="og:site_name" content="The Onde-Onde’s Project">
 <meta property="og:locale" content="id_ID">
 <meta property="og:title" content="The Onde-Onde’s — Nature Pitch Calibrator">
-<meta property="og:description" content="Tuner gitar, biola, bass, dan ukulele. Mode jarum & strobo, bisa dipakai tanpa internet.">
+<meta property="og:description" content="Tuner gitar, biola, bass, dan ukulele. Mode jarum &amp; strobo, bisa dipakai tanpa internet.">
 <meta property="og:url" content="https://cecemeri48-beep.github.io/ondes2tuning/">
 <meta property="og:image" content="https://cecemeri48-beep.github.io/ondes2tuning/og-image.jpg">
 <meta property="og:image:secure_url" content="https://cecemeri48-beep.github.io/ondes2tuning/og-image.jpg">
@@ -21,7 +21,7 @@
 <meta property="og:image:alt" content="Lencana The Onde-Onde’s — Nature Pitch Calibrator">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The Onde-Onde’s — Nature Pitch Calibrator">
-<meta name="twitter:description" content="Tuner gitar, biola, bass, dan ukulele. Mode jarum & strobo, bisa dipakai tanpa internet.">
+<meta name="twitter:description" content="Tuner gitar, biola, bass, dan ukulele. Mode jarum &amp; strobo, bisa dipakai tanpa internet.">
 <meta name="twitter:image" content="https://cecemeri48-beep.github.io/ondes2tuning/og-image.jpg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -39,6 +39,7 @@
     --panel:rgba(255,246,230,.05); --line:rgba(224,174,92,.26); --line2:rgba(245,233,214,.12);
     --terra:#C2542F; --terra-lt:#E0774A; --brass:#E0AE5C; --teal:#3E8F84;
     --green:#6FC79A; --blue:#6FA8DC; --red:#E8836F;
+    --mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   html{height:100%}
@@ -161,6 +162,83 @@
       var(--sc,#E6D6B6) 0 14px, rgba(0,0,0,0) 14px 28px)}
   .sband.b2{background-image:repeating-linear-gradient(90deg,
       var(--sc,#A8927099) 0 10px, rgba(0,0,0,0) 10px 20px)}
+
+  /* ================= KULIT STROBO PRO (rak logam) ================= */
+  [data-skin="pro"]{
+    --brass:#FFB020; --terra:#8A9096; --terra-lt:#B7BDC2; --teal:#7C8790;
+    --ink:#E8ECEE; --ink2:rgba(232,236,238,.72); --ink3:rgba(232,236,238,.42);
+    --line:rgba(190,200,208,.20); --line2:rgba(190,200,208,.13);
+    --panel:rgba(220,230,238,.04)}
+  [data-skin="pro"] body{
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.014) 0 1px, rgba(0,0,0,0) 1px 3px),
+      radial-gradient(130% 90% at 50% 0%, #23272B 0%, #16191C 46%, #0A0C0D 100%)}
+  [data-skin="pro"] body::before{opacity:.10;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><g fill='none' stroke='%23AFBAC2' stroke-width='1'><path d='M0 48 L96 48 M48 0 L48 96'/></g><g fill='%23AFBAC2' opacity='.55'><circle cx='48' cy='48' r='1.6'/><circle cx='0' cy='0' r='1.6'/><circle cx='96' cy='0' r='1.6'/><circle cx='0' cy='96' r='1.6'/><circle cx='96' cy='96' r='1.6'/></g></svg>");
+    background-size:96px 96px}
+  [data-skin="pro"] body::after{opacity:.22}
+  [data-skin="pro"] .brand,
+  [data-skin="pro"] .panel,
+  [data-skin="pro"] .screen{
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 1px, rgba(0,0,0,0) 1px 3px),
+      linear-gradient(180deg, #33383D 0%, #22262A 22%, #1A1D20 78%, #101315 100%);
+    border:1px solid #454C52;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.13), inset 0 -1px 0 rgba(0,0,0,.6),
+      0 12px 30px rgba(0,0,0,.62)}
+  /* baut rak di empat sudut */
+  [data-skin="pro"] .brand::after,
+  [data-skin="pro"] .panel::after{content:""; position:absolute; inset:0; height:auto;
+    pointer-events:none; background:
+      radial-gradient(circle 3.2px at 9px 9px, #6E767C 0 55%, #2A2E32 58%, rgba(0,0,0,0) 100%),
+      radial-gradient(circle 3.2px at calc(100% - 9px) 9px, #6E767C 0 55%, #2A2E32 58%, rgba(0,0,0,0) 100%),
+      radial-gradient(circle 3.2px at 9px calc(100% - 9px), #6E767C 0 55%, #2A2E32 58%, rgba(0,0,0,0) 100%),
+      radial-gradient(circle 3.2px at calc(100% - 9px) calc(100% - 9px), #6E767C 0 55%, #2A2E32 58%, rgba(0,0,0,0) 100%)}
+  [data-skin="pro"] .panel{position:relative; overflow:hidden}
+  [data-skin="pro"] .screen{
+    background:
+      radial-gradient(120% 90% at 50% 0%, #171B1E 0%, #0C0F11 60%, #07090A 100%);
+    border:1px solid #3E454A;
+    box-shadow:inset 0 2px 14px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.07),
+      0 12px 30px rgba(0,0,0,.6)}
+  [data-skin="pro"] .scene{opacity:.13; filter:grayscale(1)}
+  [data-skin="pro"] .sread{--gl:rgba(255,176,32,.85); --gl2:rgba(255,176,32,.42)}
+  [data-skin="pro"] .snote{font-family:var(--mono); letter-spacing:-.01em}
+  [data-skin="pro"] .shz{font-family:var(--mono)}
+  [data-skin="pro"] .starget{color:#FFC96B}
+  [data-skin="pro"] .modes button[aria-selected="true"],
+  [data-skin="pro"] .tabs button[aria-selected="true"]{
+    background:linear-gradient(180deg,#4A5157,#2C3135); color:#FFD68F;
+    border-color:#5A6268;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 2px 10px rgba(0,0,0,.5)}
+  [data-skin="pro"] .start{
+    background:linear-gradient(180deg,#3E464C,#242A2E); border-color:#5A6268;
+    color:#FFD68F; box-shadow:inset 0 1px 0 rgba(255,255,255,.20), 0 0 18px rgba(255,176,32,.16)}
+  [data-skin="pro"] .brand .strip,
+  [data-skin="pro"] .brand .mark{filter:saturate(.55) drop-shadow(0 2px 5px rgba(0,0,0,.6))}
+
+  /* ---- tombol ganti kulit ---- */
+  .skinbtn{position:absolute; top:8px; right:10px; z-index:3; display:flex; align-items:center;
+    gap:6px; height:24px; padding:0 10px; border-radius:999px; cursor:pointer;
+    background:rgba(0,0,0,.34); border:1px solid var(--line);
+    color:var(--brass); font:700 9.5px/1 var(--sans); letter-spacing:.16em;
+    text-transform:uppercase; transition:background .15s,border-color .15s}
+  .skinbtn:hover{background:rgba(0,0,0,.52)}
+  .skinbtn:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+  .skinbtn i{width:6px; height:6px; border-radius:50%; background:currentColor;
+    box-shadow:0 0 7px currentColor}
+
+  /* ---- piringan strobo ---- */
+  .disc{display:none; align-items:center; justify-content:center; gap:14px}
+  .disc svg{width:138px; height:138px; display:block;
+    filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))}
+  .disc .seg{fill:var(--dc,#C9D2D8); opacity:.92}
+  .disclab{display:flex; flex-direction:column; gap:9px}
+  .disclab b{display:block; font:700 8.5px/1.5 var(--sans); letter-spacing:.20em;
+    text-transform:uppercase; color:var(--ink3)}
+  .disclab span{font:700 12px/1 var(--mono); color:var(--ink2)}
+  .strobe.pro .sband{display:none}
+  .strobe.pro .disc{display:flex}
 
   .modes{display:flex; gap:4px; padding:4px; border-radius:11px;
     background:rgba(0,0,0,.34); border:1px solid var(--line2)}
@@ -288,19 +366,20 @@
 </head>
 <body>
 <div class="splash" id="splash" aria-hidden="true">
-  <img src="./logo.png" width="280" height="249" alt="">
+  <img src="./logo.png" width="280" height="252" alt="">
   <div class="stag">Nature Pitch Calibrator</div>
 </div>
 <div class="app">
 
   <!-- ================= EMBLEM ================= -->
   <header class="brand">
-    <img class="mark" src="./logo.png" width="280" height="249"
+    <img class="mark" src="./logo.png" width="280" height="252"
          alt="Logo The Onde-Onde’s" decoding="async">
     <div class="btxt">
       <h1>The Onde-Onde&#8217;s Project</h1>
       <p>Nature Pitch Calibrator</p>
     </div>
+    <button class="skinbtn" id="skinBtn" type="button" aria-label="Ganti tampilan"><i></i><span id="skinLbl">Etnik</span></button>
   </header>
 
   <div class="screen">
@@ -405,6 +484,14 @@
     <div class="strobe" id="strobeGroup">
       <div class="sband" id="strobeBand1"></div>
       <div class="sband b2" id="strobeBand2"></div>
+      <div class="disc" id="discGroup">
+        <svg id="discSvg" viewBox="0 0 150 150" aria-label="Piringan strobo berputar"></svg>
+        <div class="disclab">
+          <div><b>Oktaf</b><span id="discO1">×2</span></div>
+          <div><b>Nada</b><span id="discO2">×1</span></div>
+          <div><b>Bawah</b><span id="discO3">÷2</span></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -568,10 +655,51 @@ let mode = "needle", strobeSpeed = 0, sOff1 = 0, sOff2 = 0, lastFrame = 0;
 let lockedIndex = -1, hpNode = null, lpNode = null, wakeLock = null, lastLvl = "";
 
 /* ---------- pengaturan tersimpan ---------- */
+let skin = "etnik", discAng = 0, discRings = null;
+const DISC_K = [2, 1, 0.5];
+
+/* ---------- piringan strobo ala rak studio ---------- */
+function buildDisc(){
+  const svg = $("discSvg");
+  const cincin = [[70, 56, 24], [52, 38, 16], [34, 18, 10]];
+  let s = '<circle cx="75" cy="75" r="73" fill="#15181A" stroke="#6B747A" stroke-width="2.5"/>'
+        + '<circle cx="75" cy="75" r="69" fill="none" stroke="#2A2F33" stroke-width="1"/>';
+  cincin.forEach((c, i) => {
+    const [rl, rd, n] = c;
+    let g = '<g id="ring' + i + '">';
+    for (let k = 0; k < n; k++){
+      const a0 = (k * 2 * Math.PI) / n, a1 = a0 + Math.PI / n;
+      const x = (r, a) => (75 + r * Math.cos(a)).toFixed(2);
+      const y = (r, a) => (75 + r * Math.sin(a)).toFixed(2);
+      g += '<path class="seg" d="M' + x(rd,a0) + ' ' + y(rd,a0)
+         + ' L' + x(rl,a0) + ' ' + y(rl,a0)
+         + ' A' + rl + ' ' + rl + ' 0 0 1 ' + x(rl,a1) + ' ' + y(rl,a1)
+         + ' L' + x(rd,a1) + ' ' + y(rd,a1)
+         + ' A' + rd + ' ' + rd + ' 0 0 0 ' + x(rd,a0) + ' ' + y(rd,a0) + ' Z"/>';
+    }
+    s += g + '</g>';
+  });
+  s += '<circle cx="75" cy="75" r="9" fill="#3A4045" stroke="#7E878D" stroke-width="1.2"/>'
+     + '<circle cx="75" cy="75" r="3" fill="#0C0E10"/>'
+     + '<ellipse cx="52" cy="44" rx="40" ry="26" fill="#FFFFFF" opacity=".05"/>';
+  svg.innerHTML = s;
+  discRings = [0, 1, 2].map(i => $("ring" + i));
+}
+
+function setSkin(s){
+  skin = (s === "pro") ? "pro" : "etnik";
+  document.documentElement.setAttribute("data-skin", skin);
+  $("skinLbl").textContent = skin === "pro" ? "Pro" : "Etnik";
+  $("strobeGroup").classList.toggle("pro", skin === "pro");
+  const tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.setAttribute("content", skin === "pro" ? "#16191C" : "#17120E");
+  saveSettings();
+}
+
 const LS_KEY = "chelebes.tuner.v1";
 function saveSettings(){
   try { localStorage.setItem(LS_KEY,
-    JSON.stringify({ instrument, presetIndex, A4, mode })); } catch(e){}
+    JSON.stringify({ instrument, presetIndex, A4, mode, skin })); } catch(e){}
 }
 function loadSettings(){
   try {
@@ -582,6 +710,7 @@ function loadSettings(){
       presetIndex = s.presetIndex;
     if (typeof s.A4 === "number" && isFinite(s.A4)) A4 = Math.max(430, Math.min(450, s.A4));
     if (s.mode === "needle" || s.mode === "strobe") mode = s.mode;
+    if (s.skin === "pro" || s.skin === "etnik") skin = s.skin;
   } catch(e){}
 }
 
@@ -907,6 +1036,7 @@ function resetDisplay(){
   $("needleG").style.left = "50%";
   $("strobeBand1").style.setProperty("--sc", "#E6D6B6");
   $("strobeBand2").style.setProperty("--sc", "#A89270");
+  $("strobeGroup").style.setProperty("--dc", "#DCE3E8");
   document.querySelectorAll(".sstr").forEach(el => el.classList.remove("active", "tuned"));
 }
 
@@ -1014,6 +1144,12 @@ function loop(){
     sOff2 = (sOff2 + strobeSpeed * dt) % 20;
     $("strobeBand1").style.backgroundPositionX = sOff1.toFixed(2) + "px";
     $("strobeBand2").style.backgroundPositionX = sOff2.toFixed(2) + "px";
+    if (skin === "pro" && discRings){
+      discAng = (discAng + strobeSpeed * dt) % 720;
+      for (let i = 0; i < 3; i++)
+        discRings[i].setAttribute("transform",
+          "rotate(" + (discAng * DISC_K[i]).toFixed(2) + " 75 75)");
+    }
   }
 }
 
@@ -1059,6 +1195,7 @@ function render(freq){
   strobeSpeed = Math.max(-260, Math.min(260, cents * 5));
   $("strobeBand1").style.setProperty("--sc", inTune ? "#9FEEC2" : close ? "#F2D9A6" : "#E6D6B6");
   $("strobeBand2").style.setProperty("--sc", inTune ? "#5FB287" : close ? "#C7A265" : "#A89270");
+  $("strobeGroup").style.setProperty("--dc", inTune ? "#4BE39B" : close ? "#FFC46B" : "#DCE3E8");
 
   document.querySelectorAll(".sstr").forEach(el => {
     const s = strings[+el.dataset.i];
@@ -1098,6 +1235,8 @@ $("a4dn").onclick    = () => setA4(A4 - 1);
 
 loadSettings();
 buildGauge(); buildTabs(); buildPresets(); buildStrings();
+buildDisc(); setSkin(skin);
+$("skinBtn").onclick = () => setSkin(skin === "pro" ? "etnik" : "pro");
 setMode(mode); resetDisplay();
 $("a4v").textContent = A4;
 
