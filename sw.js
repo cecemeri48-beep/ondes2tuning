@@ -1,6 +1,6 @@
 /* Pekerja layanan Chelebes Tuner — simpan aplikasi agar bisa dipakai offline.
    Naikkan angka VERSI setiap kali berkas diperbarui supaya simpanan lama dibuang. */
-const VERSI = "v13";
+const VERSI = "v14";
 const CACHE = "chelebes-tuner-" + VERSI;
 const ASSETS = [
   "./",
